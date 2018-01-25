@@ -15,6 +15,14 @@ Note: Nodes can be associated only to one story.
 
 `DELETE /stories/{id}/` - Delete a story, will delete all the story nodes
 
+Or, as JavaScript:
+
+`Stories.list()`
+`Stories.get(id)`
+`Stories.create(id, definition)`
+`Stories.modify(id, changes)`
+`Stories.delete(id)`
+
 **Story JSON model**
 
 ```
@@ -37,6 +45,12 @@ Note: Nodes can be associated only to one story.
 
 `DELETE /nodes/{id}/` - Delete a node
 
+Or, as JavaScript:
+
+`Nodes.get(id)`
+`Nodes.create(id, definition)`
+`Nodes.modify(id, changes)`
+`Nodes.delete(id)`
 
 **General Node JSON model**
 
