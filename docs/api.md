@@ -86,6 +86,7 @@ Or, as JavaScript:
 {
   id: int,
   story_id: int,
+  votes: int,
   
   // Optional attributes
   
