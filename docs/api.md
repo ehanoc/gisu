@@ -61,6 +61,10 @@ Or, as JavaScript:
 
 `DELETE /nodes/{id}/` - Delete a node
 
+`POST /nodes/{id}/vote/` - Up vote a node
+
+`DELETE /nodes/{id}/vote/` - Down vote a node (remove's your vote)
+
 Or, as JavaScript:
 
 `Nodes.get(id)`
@@ -70,6 +74,10 @@ Or, as JavaScript:
 `Nodes.modify(id, changes)`
 
 `Nodes.delete(id)`
+
+`Nodes.upvote()`
+
+`Nodes.downvote()`
 
 
 **General Node JSON model**
