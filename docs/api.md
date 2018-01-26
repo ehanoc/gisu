@@ -75,9 +75,9 @@ Or, as JavaScript:
 
 `Nodes.delete(id)`
 
-`Nodes.upvote()`
+`Nodes.upvote(id)`
 
-`Nodes.downvote()`
+`Nodes.downvote(id)`
 
 
 **General Node JSON model**
@@ -87,6 +87,7 @@ Or, as JavaScript:
   id: int,
   story_id: int,
   votes: int,
+  is_accepted: bool,
   
   // Optional attributes
   
