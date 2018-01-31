@@ -23,8 +23,8 @@ const SpecialChildShape = (
 )
 */
 
-const NormalEdgeShape = (
-  <symbol viewBox="0 0 50 50" id="normalEdge">
+const transitionShape = (
+  <symbol viewBox="0 0 50 50" id="transition">
     <circle cx="25" cy="25" r="8" fill="currentColor"> </circle>
   </symbol>
 )
@@ -51,9 +51,9 @@ export default {
     */
   },
   EdgeTypes: {
-    normalEdge: {
-      shapeId: "#normalEdge",
-      shape: NormalEdgeShape
+    transition: {
+      shapeId: "#transition",
+      shape: transitionShape
     }
   }
 }

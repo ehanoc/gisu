@@ -69,6 +69,10 @@
       "votes": 5,
       "is_accepted": true,
 
+      "background_id": null,
+      "music_id": null,
+      "text": "So, what path will you choose?",
+
       "choices": [
         {
           "text": "Go to the first node in branch A",

@@ -31,7 +31,7 @@ const NODE_KEY = "id" // Key used to identify nodes
 const TEXT_TYPE = "text"; // Empty node type
 const CHOICE_TYPE = "choice";
 const SPECIAL_CHILD_SUBTYPE = "specialChild";
-const NORMAL_EDGE_TYPE = "normalEdge";
+const TRANSITION_TYPE = "transition";
 const SPECIAL_EDGE_TYPE = "specialEdge";
 
 // NOTE: Edges must have 'source' & 'target' attributes
@@ -42,7 +42,10 @@ const EMPTY_GRAPH = {
   "edges": []
 }
 
-const buildEdge = (source, target, type=NORMAL_EDGE_TYPE) => ({ source, target, type })
+const buildEdge = (source, target, data=null, type=TRANSITION_TYPE) => ({
+  isEdge: true,
+  source, target, type, data
+})
 
 const buildGraph = (story) => {
   const nodeById = {}
@@ -56,6 +59,7 @@ const buildGraph = (story) => {
     const graphNode = {
       id: node.id,
       title: `Node ${node.id}`,
+      isNode: true,
       x: 0,
       y: 0,
       type: 'text',
@@ -70,7 +74,7 @@ const buildGraph = (story) => {
       const choiceEdges = compact(node.choices.map((choice) => {
         if (choice.next_node_id != null) {
           graphNode.children.push(choice.next_node_id)
-          return buildEdge(node.id, choice.next_node_id)
+          return buildEdge(node.id, choice.next_node_id, { text: choice.text })
         }
       }))
       graph.edges = graph.edges.concat(choiceEdges)
@@ -95,7 +99,7 @@ const buildGraph = (story) => {
 
   }
 
-  setPosition(nodeById[story.start_node_id])
+  setPosition(nodeById[story.start_node_id], window.outerWidth*0.15, window.outerHeight/2)
 
 
 
@@ -219,7 +223,7 @@ export default class Graph extends Component {
 
     // This is just an example - any sort of logic
     // could be used here to determine edge type
-    const type = sourceViewNode.type === CHOICE_TYPE ? SPECIAL_EDGE_TYPE : NORMAL_EDGE_TYPE;
+    const type = sourceViewNode.type === CHOICE_TYPE ? SPECIAL_EDGE_TYPE : TRANSITION_TYPE;
 
     const viewEdge = {
       source: sourceViewNode[NODE_KEY],
@@ -263,13 +267,12 @@ export default class Graph extends Component {
     const nodes = this.state.graph.nodes
     const edges = this.state.graph.edges
     const selected = this.state.selected
-    const noSelection = selected.id == null
 
     const NodeTypes = GraphConfig.NodeTypes
     const NodeSubtypes = GraphConfig.NodeSubtypes
     const EdgeTypes = GraphConfig.EdgeTypes
 
-    console.log(noSelection, selected)
+    console.log('Selected node is', selected)
 
 
     return (
@@ -277,7 +280,7 @@ export default class Graph extends Component {
 
         <HotkeysTooltip />
 
-        <NodeInspector selectedNode={ noSelection ? null : selected}/>
+        <NodeInspector selectedNode={ selected.isNode || selected.isEdge ? selected : null }/>
 
         <GraphView  ref={(el) => this.GraphView = el}
                     nodeKey={NODE_KEY}

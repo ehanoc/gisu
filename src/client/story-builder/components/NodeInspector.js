@@ -25,7 +25,7 @@ class SelectedNodeInspector extends Component {
 
   render() {
     const { selectedNode } = this.props
-    const data = selectedNode.data
+    const data = selectedNode.data || {}
 
     return (
       <Card className="node-inspector">
@@ -36,23 +36,31 @@ class SelectedNodeInspector extends Component {
         />
 
         <CardMedia>
-          <img src="http://via.placeholder.com/350x150" alt="" />
+          { selectedNode.isNode ? <img src="http://via.placeholder.com/350x150?text=No%20Background%20image" alt="" /> : null }
         </CardMedia>
 
 
         <CardText>
-          <TextField
-            style={{width: '100%'}}
-            hintText="Enter node's text"
-            value={data.text}
-          />
+          {
+            data.text
+              ? <TextField
+                style={{width: '100%'}}
+                hintText="Enter node's text"
+                value={data.text}
+              />
+              : null
+          }
         </CardText>
 
 
 
         <CardActions>
           <FlatButton label="Update" />
-          <FlatButton label="Vote Up" />
+          {
+            selectedNode.isNode
+              ? <FlatButton label="Vote Up" />
+              : null
+          }
           <FlatButton label="Cancel" />
         </CardActions>
       </Card>
