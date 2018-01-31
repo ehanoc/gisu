@@ -11,9 +11,9 @@ class EmptyNodeInspector extends Component {
     return (
       <Card className="node-inspector">
 
-      <CardHeader
-        title="Select a node to edit"
-      />
+        <CardText style={{paddingBottom: '10px'}}>
+          Select a Node or Transition to edit
+        </CardText>
 
       </Card>
     )
