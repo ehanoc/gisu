@@ -1,12 +1,20 @@
 /*
   Example usage of GraphView component
 */
+import {compact} from 'lodash'
 
-import React, {Component} from 'react';
-import ReactDOM from 'react-dom';
+import React, {Component} from 'react'
+import ReactDOM from 'react-dom'
 
 import GraphView from 'react-digraph'
 import GraphConfig from './graph-config.js' // Configures node/edge types
+
+import {
+  NodeInspector,
+  HotkeysTooltip
+} from './components'
+
+import {Story} from '../api'
 
 const styles = {
   graph: {
@@ -20,59 +28,79 @@ const NODE_KEY = "id" // Key used to identify nodes
 // These keys are arbitrary (but must match the config)
 // However, GraphView renders text differently for empty types
 // so this has to be passed in if that behavior is desired.
-const EMPTY_TYPE = "empty"; // Empty node type
-const SPECIAL_TYPE = "special"; 
+const TEXT_TYPE = "text"; // Empty node type
+const CHOICE_TYPE = "choice";
 const SPECIAL_CHILD_SUBTYPE = "specialChild";
-const EMPTY_EDGE_TYPE = "emptyEdge";
+const NORMAL_EDGE_TYPE = "normalEdge";
 const SPECIAL_EDGE_TYPE = "specialEdge";
 
 // NOTE: Edges must have 'source' & 'target' attributes
-// In a more realistic use case, the graph would probably originate 
+// In a more realistic use case, the graph would probably originate
 // elsewhere in the App or be generated from some other state upstream of this component.
-const sample = {
-  "nodes": [
-    {
-      "id": 1,
-      "title": "Node A",
-      "x": 258.3976135253906,
-      "y": 331.9783248901367,
-      "type": SPECIAL_TYPE
-    },
-    {
-      "id": 2,
-      "title": "Node B",
-      "x": 593.9393920898438,
-      "y": 260.6060791015625,
-      "type": EMPTY_TYPE,
-      "subtype": SPECIAL_CHILD_SUBTYPE
-    },
-    {
-      "id": 3,
-      "title": "Node C",
-      "x": 237.5757598876953,
-      "y": 61.81818389892578,
-      "type": EMPTY_TYPE
-    },
-    {
-      "id": 4,
-      "title": "Node C",
-      "x": 600.5757598876953,
-      "y": 600.81818389892578,
-      "type": EMPTY_TYPE
+const EMPTY_GRAPH = {
+  "nodes": [],
+  "edges": []
+}
+
+const buildEdge = (source, target, type=NORMAL_EDGE_TYPE) => ({ source, target, type })
+
+const buildGraph = (story) => {
+  const nodeById = {}
+
+  const graph = {
+    nodes: [],
+    edges : []
+  }
+
+  story.nodes.forEach((node) => {
+    const graphNode = {
+      id: node.id,
+      title: `Node ${node.id}`,
+      x: 0,
+      y: 0,
+      type: 'text',
+      data: node,
+      children: []
     }
-  ],
-  "edges": [
-    {
-      "source": 1,
-      "target": 2,
-      "type": SPECIAL_EDGE_TYPE
-    },
-    {
-      "source": 2,
-      "target": 4,
-      "type": EMPTY_EDGE_TYPE
+
+    graph.nodes.push(graphNode)
+    nodeById[graphNode.id] = graphNode
+
+    if (node.choices != null) {
+      const choiceEdges = compact(node.choices.map((choice) => {
+        if (choice.next_node_id != null) {
+          graphNode.children.push(choice.next_node_id)
+          return buildEdge(node.id, choice.next_node_id)
+        }
+      }))
+      graph.edges = graph.edges.concat(choiceEdges)
+    } else if (node.next_node_id != null) {
+      graph.edges.push(buildEdge(node.id, node.next_node_id))
+      graphNode.children.push(node.next_node_id)
     }
-  ]
+
+  })
+
+
+  function setPosition(node, x=0, y=0) {
+
+    node.x = x
+    node.y = y
+
+    node.children.forEach((childId, i) => {
+      const child = nodeById[childId]
+      const childY = node.children.length <= 1 ? y : y+350*(i - node.children.length/2 + 1)
+      setPosition(child, x+300, childY)
+    })
+
+  }
+
+  setPosition(nodeById[story.start_node_id])
+
+
+
+
+  return graph
 }
 
 export default class Graph extends Component {
@@ -81,9 +109,17 @@ export default class Graph extends Component {
     super(props);
 
     this.state = {
-      graph: sample,
+      graph: EMPTY_GRAPH,
       selected: {}
     }
+
+    Story.get(0)
+      .then((story) => {
+        const graph = buildGraph(story)
+        console.log('Received', graph)
+        this.setState({graph})
+      })
+
   }
 
   // Helper to find the index of a given node
@@ -113,7 +149,7 @@ export default class Graph extends Component {
    * Handlers/Interaction
    */
 
-  // Called by 'drag' handler, etc.. 
+  // Called by 'drag' handler, etc..
   // to sync updates from D3 with the graph
   onUpdateNode(viewNode) {
     const graph = this.state.graph;
@@ -142,11 +178,11 @@ export default class Graph extends Component {
   onCreateNode (x,y) {
     const graph = this.state.graph;
 
-    // This is just an example - any sort of logic 
+    // This is just an example - any sort of logic
     // could be used here to determine node type
     // There is also support for subtypes. (see 'sample' above)
     // The subtype geometry will underlay the 'type' geometry for a node
-    const type = Math.random() < 0.25 ? SPECIAL_TYPE : EMPTY_TYPE;
+    const type = Math.random() < 0.25 ? CHOICE_TYPE : TEXT_TYPE;
 
     const viewNode = {
       id: this.state.graph.nodes.length + 1,
@@ -168,7 +204,7 @@ export default class Graph extends Component {
 
     // Delete any connected edges
     const newEdges = graph.edges.filter((edge, i)=>{
-      return  edge.source != viewNode[NODE_KEY] && 
+      return  edge.source != viewNode[NODE_KEY] &&
               edge.target != viewNode[NODE_KEY]
     })
 
@@ -181,16 +217,16 @@ export default class Graph extends Component {
   onCreateEdge(sourceViewNode, targetViewNode) {
     const graph = this.state.graph;
 
-    // This is just an example - any sort of logic 
+    // This is just an example - any sort of logic
     // could be used here to determine edge type
-    const type = sourceViewNode.type === SPECIAL_TYPE ? SPECIAL_EDGE_TYPE : EMPTY_EDGE_TYPE;
+    const type = sourceViewNode.type === CHOICE_TYPE ? SPECIAL_EDGE_TYPE : NORMAL_EDGE_TYPE;
 
     const viewEdge = {
       source: sourceViewNode[NODE_KEY],
       target: targetViewNode[NODE_KEY],
       type: type
     }
-    
+
     // Only add the edge when the source node is not the same as the target
     if (viewEdge.source !== viewEdge.target) {
       graph.edges.push(viewEdge);
@@ -224,20 +260,28 @@ export default class Graph extends Component {
    */
 
   render() {
-    const nodes = this.state.graph.nodes;
-    const edges = this.state.graph.edges;
-    const selected = this.state.selected;
+    const nodes = this.state.graph.nodes
+    const edges = this.state.graph.edges
+    const selected = this.state.selected
+    const noSelection = selected.id == null
 
-    const NodeTypes = GraphConfig.NodeTypes;
-    const NodeSubtypes = GraphConfig.NodeSubtypes;
-    const EdgeTypes = GraphConfig.EdgeTypes;
+    const NodeTypes = GraphConfig.NodeTypes
+    const NodeSubtypes = GraphConfig.NodeSubtypes
+    const EdgeTypes = GraphConfig.EdgeTypes
+
+    console.log(noSelection, selected)
+
 
     return (
       <div id='graph' style={styles.graph}>
-      
+
+        <HotkeysTooltip />
+
+        <NodeInspector selectedNode={ noSelection ? null : selected}/>
+
         <GraphView  ref={(el) => this.GraphView = el}
                     nodeKey={NODE_KEY}
-                    emptyType={EMPTY_TYPE}
+                    emptyType={TEXT_TYPE}
                     nodes={nodes}
                     edges={edges}
                     selected={selected}

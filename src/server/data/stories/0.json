@@ -1,0 +1,148 @@
+{
+  "id": 0,
+  "title": "My First Story",
+  "description": "A sample story for this application",
+  "start_node_id": 0,
+
+  "nodes": [
+
+    {
+      "id": 0,
+      "story_id": 0,
+      "votes": 5,
+      "is_accepted": true,
+
+
+      "next_node_id": 1,
+
+      "background_id": 0,
+      "music_id": null,
+      "text": "The story begins with a single node"
+
+    },
+
+    {
+      "id": 1,
+      "story_id": 0,
+      "votes": 5,
+      "is_accepted": true,
+
+
+      "next_node_id": 2,
+
+      "background_id": null,
+      "music_id": null,
+      "text": "That leads to a second node"
+    },
+
+    {
+      "id": 2,
+      "story_id": 0,
+      "votes": 5,
+      "is_accepted": true,
+
+
+      "next_node_id": 3,
+
+      "background_id": null,
+      "music_id": null,
+      "text": "And a third"
+    },
+
+    {
+      "id": 3,
+      "story_id": 0,
+      "votes": 5,
+      "is_accepted": true,
+
+
+      "next_node_id": 4,
+
+      "background_id": null,
+      "music_id": null,
+      "text": "Eventually you will have to choose"
+    },
+
+    {
+      "id" : 4,
+      "story_id": 0,
+      "votes": 5,
+      "is_accepted": true,
+
+      "choices": [
+        {
+          "text": "Go to the first node in branch A",
+          "next_node_id": 5
+        },
+
+        {
+          "text": "Go to the second node in branch A",
+          "next_node_id": 6
+        },
+
+        {
+          "text": "Go to the first node in branch B",
+          "next_node_id": 7
+        }
+
+      ]
+    },
+
+    {
+      "id": 5,
+      "story_id": 0,
+      "votes": 5,
+      "is_accepted": true,
+
+
+      "next_node_id": 6,
+
+      "background_id": null,
+      "music_id": null,
+      "text": "First node in branch A"
+    },
+
+    {
+      "id": 6,
+      "story_id": 0,
+      "votes": 5,
+      "is_accepted": true,
+
+
+      "next_node_id": null,
+
+      "background_id": null,
+      "music_id": null,
+      "text": "Seond node in branch A"
+    },
+
+    {
+      "id": 7,
+      "story_id": 0,
+      "votes": 5,
+      "is_accepted": true,
+
+
+      "next_node_id": 8,
+
+      "background_id": null,
+      "music_id": null,
+      "text": "First node in branch B"
+    },
+
+    {
+      "id": 8,
+      "story_id": 0,
+      "votes": 5,
+      "is_accepted": true,
+
+
+      "next_node_id": null,
+
+      "background_id": null,
+      "music_id": null,
+      "text": "Second node in branch B"
+    }
+
+  ]
+}
