@@ -3,6 +3,14 @@
 */
 import React from 'react';
 
+const AddNodeControl = (
+  <symbol viewBox="0 0 100 100" id="add-node-control">
+    <circle cx="20" cy="20" r="20"></circle>
+    <text textAnchor="middle" x="20" y="30" fontSize="30px">+</text>
+  </symbol>
+)
+
+
 const TextShape = (
   <symbol viewBox="0 0 100 100" id="text">
     <circle cx="50" cy="50" r="45"></circle>
@@ -23,7 +31,7 @@ const SpecialChildShape = (
 )
 */
 
-const transitionShape = (
+const TransitionShape = (
   <symbol viewBox="0 0 50 50" id="transition">
     <circle cx="25" cy="25" r="8" fill="currentColor"> </circle>
   </symbol>
@@ -53,7 +61,13 @@ export default {
   EdgeTypes: {
     transition: {
       shapeId: "#transition",
-      shape: transitionShape
+      shape: TransitionShape
+    }
+  },
+  ControlTypes: {
+    add: {
+      shapeId: '#add-node-control',
+      shape: AddNodeControl
     }
   }
 }

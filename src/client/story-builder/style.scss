@@ -16,3 +16,25 @@
   bottom: 20px;
   right: 20px;
 }
+
+#add-node-control {
+  circle {
+    fill: #E91E63;
+    stroke: transparent;
+    &:hover {
+      fill: darken(#E91E63, 10%);
+    }
+  }
+
+  text {
+    stroke: transparent;
+    fill: #FFFFFF;
+  }
+
+  &:hover {
+    circle {
+      fill: darken(#E91E63, 10%);
+    }
+  }
+
+}

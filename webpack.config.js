@@ -36,7 +36,7 @@ module.exports = {
 
     entry: {
         storybuilder: [
-            './story-builder/index.js', 
+            './story-builder/index.js',
             './story-builder/style.scss'
         ],
         vendor: [
@@ -60,7 +60,8 @@ module.exports = {
             loader: 'babel-loader',
             options: {
               babelrc: false,
-              presets: ['env', 'react'],
+              presets: ['es2015', 'react', 'stage-2'],
+              plugins: [ 'transform-object-assign'],
             },
           }],
         },

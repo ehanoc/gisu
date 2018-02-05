@@ -1,12 +1,14 @@
 /*
   Example usage of GraphView component
 */
-import {compact} from 'lodash'
+import {compact, random} from 'lodash'
+
+const randomId = () => random(100, 99999)
 
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
 
-import GraphView from 'react-digraph'
+import GraphView from './components/GraphView'
 import GraphConfig from './graph-config.js' // Configures node/edge types
 
 import {
@@ -42,13 +44,14 @@ const EMPTY_GRAPH = {
   "edges": []
 }
 
+const nodeById = {}
+
 const buildEdge = (source, target, data=null, type=TRANSITION_TYPE) => ({
   isEdge: true,
   source, target, type, data
 })
 
 const buildGraph = (story) => {
-  const nodeById = {}
 
   const graph = {
     nodes: [],
@@ -106,6 +109,14 @@ const buildGraph = (story) => {
 
   return graph
 }
+
+const NodeControls = () => (
+  <g>
+    <circle cx="80" cy="100" r="15"></circle>
+    <circle cx="80" cy="-100" r="15"></circle>
+    <circle cx="120" cy="0" r="15"></circle>
+  </g>
+)
 
 export default class Graph extends Component {
 
@@ -179,7 +190,7 @@ export default class Graph extends Component {
   }
 
   // Updates the graph with a new node
-  onCreateNode (x,y) {
+  onCreateNode (parent) {
     const graph = this.state.graph;
 
     // This is just an example - any sort of logic
@@ -188,16 +199,47 @@ export default class Graph extends Component {
     // The subtype geometry will underlay the 'type' geometry for a node
     const type = Math.random() < 0.25 ? CHOICE_TYPE : TEXT_TYPE;
 
-    const viewNode = {
-      id: this.state.graph.nodes.length + 1,
-      title: '',
-      type: type,
-      x: x,
-      y: y
+    const yRange = parent.children.reduce((range, c) =>
+        [Math.min(range[0], nodeById[c].y), Math.max(range[1], nodeById[c].y)]
+      , [parent.y, parent.y])
+
+    console.log('range', yRange)
+
+    const insertAbove = parent.children.length % 2 == 0
+
+    const id = randomId()
+    const child = {
+      id,
+      title: `Node ${id}`,
+      isNode: true,
+      type,
+      x: parent.x + 300,
+      y: parent.children.length == 0
+        ? parent.y
+        : (
+          insertAbove
+            ? yRange[0] - 175
+            : yRange[1] + 175
+        ),
+      type: 'text',
+      data: {
+        "id" : id,
+        "story_id": parent.data.story_id,
+        "votes": 0,
+        "is_accepted": false,
+        "background_id": 0,
+        "music_id": null,
+        "text": ""
+      },
+      children: []
     }
 
-    graph.nodes.push(viewNode);
-    this.setState({graph: graph});
+    nodeById[child.id] = child
+    graph.nodes.push(child)
+    graph.edges.push(buildEdge(parent.id, child.id))
+    parent.children.push(child.id)
+    this.setState({graph})
+    console.log('Added new node')
   }
 
   // Deletes a node from the graph
@@ -259,6 +301,10 @@ export default class Graph extends Component {
     this.setState({graph: graph, selected: {}});
   }
 
+  setGraphView(element) {
+    this.graphView = element
+  }
+
   /*
    * Render
    */
@@ -271,6 +317,7 @@ export default class Graph extends Component {
     const NodeTypes = GraphConfig.NodeTypes
     const NodeSubtypes = GraphConfig.NodeSubtypes
     const EdgeTypes = GraphConfig.EdgeTypes
+    const ControlTypes = GraphConfig.ControlTypes
 
     console.log('Selected node is', selected)
 
@@ -282,7 +329,7 @@ export default class Graph extends Component {
 
         <NodeInspector selectedNode={ selected.isNode || selected.isEdge ? selected : null }/>
 
-        <GraphView  ref={(el) => this.GraphView = el}
+        <GraphView  ref={this.setGraphView.bind(this)}
                     nodeKey={NODE_KEY}
                     emptyType={TEXT_TYPE}
                     nodes={nodes}
@@ -291,6 +338,7 @@ export default class Graph extends Component {
                     nodeTypes={NodeTypes}
                     nodeSubtypes={NodeSubtypes}
                     edgeTypes={EdgeTypes}
+                    controlTypes={ControlTypes}
                     getViewNode={this.getViewNode.bind(this)}
                     onSelectNode={this.onSelectNode.bind(this)}
                     onCreateNode={this.onCreateNode.bind(this)}
