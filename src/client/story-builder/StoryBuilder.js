@@ -46,7 +46,9 @@ const EMPTY_GRAPH = {
 
 const nodeById = {}
 
-const buildEdge = (source, target, data=null, type=TRANSITION_TYPE) => ({
+const edgeMatrix = {}
+
+const buildEdge = (source, target, data={}, type=TRANSITION_TYPE) => ({
   isEdge: true,
   source, target, type, data
 })
@@ -70,6 +72,9 @@ const buildGraph = (story) => {
       children: []
     }
 
+    edgeMatrix[node.id] = edgeMatrix[node.id] ? edgeMatrix[node.id] : {}
+
+
     graph.nodes.push(graphNode)
     nodeById[graphNode.id] = graphNode
 
@@ -77,32 +82,39 @@ const buildGraph = (story) => {
       const choiceEdges = compact(node.choices.map((choice) => {
         if (choice.next_node_id != null) {
           graphNode.children.push(choice.next_node_id)
-          return buildEdge(node.id, choice.next_node_id, { text: choice.text })
+          const edge = buildEdge(node.id, choice.next_node_id, { text: choice.text, is_accepted: false })
+          edgeMatrix[node.id][choice.next_node_id] = edge
+          return edge
         }
       }))
       graph.edges = graph.edges.concat(choiceEdges)
     } else if (node.next_node_id != null) {
-      graph.edges.push(buildEdge(node.id, node.next_node_id))
+      const edge = buildEdge(node.id, node.next_node_id, {is_accepted: false})
+      graph.edges.push(edge)
       graphNode.children.push(node.next_node_id)
+      edgeMatrix[node.id][node.next_node_id] = edge
     }
 
   })
 
 
-  function setPosition(node, x=0, y=0) {
+  function setupGraph(node, x=0, y=0) {
 
     node.x = x
     node.y = y
 
     node.children.forEach((childId, i) => {
       const child = nodeById[childId]
-      const childY = node.children.length <= 1 ? y : y+350*(i - node.children.length/2 + 1)
-      setPosition(child, x+300, childY)
+      const childY = node.children.length <= 1 ? y : y+450*(i - node.children.length/2 + 1)
+      child.data.is_accepted = node.data.is_accepted && child.data.is_accepted
+      edgeMatrix[node.id][childId].data.is_accepted = child.data.is_accepted
+
+      setupGraph(child, x+300, childY)
     })
 
   }
 
-  setPosition(nodeById[story.start_node_id], window.outerWidth*0.15, window.outerHeight/2)
+  setupGraph(nodeById[story.start_node_id], window.outerWidth*0.15, window.outerHeight/2)
 
 
 
@@ -110,15 +122,8 @@ const buildGraph = (story) => {
   return graph
 }
 
-const NodeControls = () => (
-  <g>
-    <circle cx="80" cy="100" r="15"></circle>
-    <circle cx="80" cy="-100" r="15"></circle>
-    <circle cx="120" cy="0" r="15"></circle>
-  </g>
-)
 
-export default class Graph extends Component {
+export default class StoryBuilder extends Component {
 
   constructor(props) {
     super(props);
@@ -190,7 +195,7 @@ export default class Graph extends Component {
   }
 
   // Updates the graph with a new node
-  onCreateNode (parent) {
+  onAddNode (parent) {
     const graph = this.state.graph;
 
     // This is just an example - any sort of logic
@@ -205,7 +210,7 @@ export default class Graph extends Component {
 
     console.log('range', yRange)
 
-    const insertAbove = parent.children.length % 2 == 0
+    const insertAbove = parent.children.length % 2 != 0
 
     const id = randomId()
     const child = {
@@ -236,7 +241,7 @@ export default class Graph extends Component {
 
     nodeById[child.id] = child
     graph.nodes.push(child)
-    graph.edges.push(buildEdge(parent.id, child.id))
+    graph.edges.push(buildEdge(parent.id, child.id, { is_accepted: parent.is_accepted && child.is_accepted }))
     parent.children.push(child.id)
     this.setState({graph})
     console.log('Added new node')
@@ -341,7 +346,8 @@ export default class Graph extends Component {
                     controlTypes={ControlTypes}
                     getViewNode={this.getViewNode.bind(this)}
                     onSelectNode={this.onSelectNode.bind(this)}
-                    onCreateNode={this.onCreateNode.bind(this)}
+                    onAddNode={this.onAddNode.bind(this)}
+                    onVoteUpNode={() => {}}
                     onUpdateNode={this.onUpdateNode.bind(this)}
                     onDeleteNode={this.onDeleteNode.bind(this)}
                     onSelectEdge={this.onSelectEdge.bind(this)}

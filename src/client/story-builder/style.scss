@@ -3,6 +3,12 @@
     top: 0; bottom: 0; right: 0; left: 0;
 }
 
+$colors : (
+  'pink' : #E91E63,
+  'cyan' : #00BCD4,
+  'white' : #fff
+);
+
 .hoykeys-tooltip {
   position: absolute;
   top: 20px;
@@ -17,24 +23,26 @@
   right: 20px;
 }
 
-#add-node-control {
+.node.accepted {
+
+}
+
+#add-node-control, #voteup-node-control {
   circle {
-    fill: #E91E63;
     stroke: transparent;
-    &:hover {
-      fill: darken(#E91E63, 10%);
-    }
   }
 
   text {
     stroke: transparent;
-    fill: #FFFFFF;
+  }
+}
+
+@each $name, $hex in $colors {
+  .#{$name} {
+    fill: $hex;
   }
 
-  &:hover {
-    circle {
-      fill: darken(#E91E63, 10%);
-    }
+  .#{$name}.hover:hover {
+    fill: darken($hex, 10%);
   }
-
 }

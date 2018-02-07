@@ -7,11 +7,11 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 import { HashRouter as Router } from 'react-router-dom'
 
-import Graph from './Graph'
+import StoryBuilder from './StoryBuilder'
 
 const App = () => (
   <MuiThemeProvider>
-    <Graph/>
+    <StoryBuilder/>
   </MuiThemeProvider>
 )
 

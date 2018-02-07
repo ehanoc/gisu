@@ -3,15 +3,26 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 
-import {styleToString} from '../utils'
+import {styleToString} from '../utils/'
+
+import {keys} from 'lodash'
 
 import * as d3 from 'd3';
-
+import {moveToBack} from '../utils/d3'
 import Radium from 'radium';
 import GraphControls from './GraphControls.js'
 
+import * as color from 'material-ui/styles/colors';
 
-function makeStyles(primary='dodgerblue', light='white', dark='black', background='#F9F9F9'){
+
+function makeStyles(
+  primary='dodgerblue', light='#ccc', dark='black',
+  background='#F9F9F9',
+  nodeColor=color.grey50,
+  transitionColor=color.grey300,
+  acceptedNodeColor='white',
+  acceptedTransitionColor=color.green200
+) {
  let styles = {
     wrapper: {
       base: {
@@ -35,17 +46,21 @@ function makeStyles(primary='dodgerblue', light='white', dark='black', backgroun
     node: {
       base: {
         color: primary,
-        stroke: light,
-        fill: light,
+        stroke: nodeColor,
+        fill: nodeColor,
         filter: 'url(#dropshadow)',
         strokeWidth: '0.5px',
         cursor: 'pointer'
+      },
+      accepted: {
+        stroke: acceptedNodeColor,
+        fill: acceptedNodeColor,
       },
       selected: {
         color: light,
         stroke: primary,
         fill: primary
-      }
+      },
     },
     shape: {
       fill: 'inherit',
@@ -64,28 +79,44 @@ function makeStyles(primary='dodgerblue', light='white', dark='black', backgroun
     },
     edge: {
       base: {
-        color: light,
-        stroke: primary,
+        color: transitionColor,
+        stroke: transitionColor,
         strokeWidth: '2px',
         markerEnd: 'url(#end-arrow)',
         cursor: 'pointer'
       },
+      accepted: {
+        stroke: acceptedTransitionColor,
+        fill: acceptedTransitionColor,
+        markerEnd: 'url(#end-arrow-accepted)'
+      },
       selected: {
         color: primary,
-        stroke: primary
+        stroke: primary,
+        markerEnd: 'url(#end-arrow-selected)'
       }
     },
     arrow: {
-      fill: primary
+      base: {
+        fill: transitionColor
+      },
+      accepted: {
+        fill: acceptedTransitionColor
+      },
+      selected: {
+        fill: primary
+      }
     }
   }
 
   // Styles need to be strings for D3 to apply them all at once
   styles.node.baseString = styleToString(styles.node.base);
   styles.node.selectedString = styleToString({...styles.node.base, ...styles.node.selected});
+  styles.node.acceptedString = styleToString({...styles.node.base, ...styles.node.accepted});
   styles.text.baseString= styleToString(styles.text.base);
   styles.text.selectedString = styleToString({...styles.text.base, ...styles.text.selected});
   styles.edge.baseString = styleToString(styles.edge.base);
+  styles.edge.acceptedString = styleToString({...styles.edge.base, ...styles.edge.accepted});
   styles.edge.selectedString = styleToString({...styles.edge.base, ...styles.edge.selected});
 
   return styles
@@ -397,7 +428,7 @@ class StoryGraphView extends Component {
       this.props.onSelectNode(null);
 
       if (!this.state.readOnly && d3.event.shiftKey) {
-        this.props.onCreateNode(d);
+        this.props.onAddNode(d);
       }
 
     }
@@ -655,15 +686,24 @@ class StoryGraphView extends Component {
   }
 
   getNodeStyle(d, selected){
-    return d === selected ?
-      this.state.styles.node.selectedString :
-      this.state.styles.node.baseString
+    return d === selected
+      ? this.state.styles.node.selectedString
+      : (
+        d.data.is_accepted
+          ? this.state.styles.node.acceptedString
+          : this.state.styles.node.baseString
+      )
+
   }
 
   getEdgeStyle(d, selected){
-    return d === selected ?
-      this.state.styles.edge.selectedString :
-      this.state.styles.edge.baseString
+    return d === selected
+      ? this.state.styles.edge.selectedString
+      : (
+        d.data.is_accepted
+          ? this.state.styles.edge.acceptedString
+          : this.state.styles.edge.baseString
+      )
   }
 
   getTextStyle(d, selected){
@@ -835,10 +875,18 @@ class StoryGraphView extends Component {
     );
   }
 
+  performAction(action, datum, index, elements) {
+    console.log(`Perform action ${action} on node`, datum)
+    this[action + 'Node'](datum, index, elements)
+    d3.event.stopPropagation()
+  }
 
   addNode(datum, index, elements) {
-    this.props.onCreateNode(datum)
-    d3.event.stopPropagation()
+    this.props.onAddNode(datum)
+  }
+
+  voteupNode(datum, index, elements) {
+    this.props.onVoteUpNode(datum)
   }
 
 }
@@ -855,7 +903,8 @@ StoryGraphView.propTypes = {
   controlTypes : PropTypes.object,
   getViewNode: PropTypes.func.isRequired,
   onSelectNode: PropTypes.func.isRequired,
-  onCreateNode: PropTypes.func.isRequired,
+  onAddNode: PropTypes.func.isRequired,
+  onVoteUpNode: PropTypes.func.isRequired,
   onUpdateNode: PropTypes.func.isRequired,
   onDeleteNode: PropTypes.func.isRequired,
   onSelectEdge: PropTypes.func.isRequired,
@@ -876,6 +925,7 @@ StoryGraphView.propTypes = {
   primary: PropTypes.string,
   light: PropTypes.string,
   dark: PropTypes.string,
+  acceptedNodeColor: PropTypes.string,
   background: PropTypes.string,
   style: PropTypes.object,
   gridSize: PropTypes.number, // The point grid is fixed
@@ -896,9 +946,10 @@ StoryGraphView.defaultProps = {
   readOnly: false,
   maxTitleChars: 9,
   transitionTime: 150,
-  primary: 'dodgerblue',
-  light: '#FFF',
-  dark: '#000',
+  primary: color.blue800,
+  light: color.grey50,
+  acceptedNodeColor: color.green100,
+  dark: color.grey900,
   background: '#F9F9F9',
   gridSize: 40960, // The point grid is fixed
   gridSpacing: 36,
@@ -925,14 +976,18 @@ StoryGraphView.defaultProps = {
     let trans = graphView.getEdgeHandleTransformation(datum)
     d3.select(domNode)
       .attr("style", style)
+    /*
       .select("use")
+        .call(moveToBack)
         .attr("xlink:href", function(d){ return graphView.props.edgeTypes[d.type].shapeId })
         .attr("width", graphView.props.edgeHandleSize)
         .attr("height", graphView.props.edgeHandleSize)
         .attr("transform", trans);
+    */
 
     d3.select(domNode)
       .select('path')
+        .call(moveToBack)
         .attr('d', graphView.getPathDescription);
   },
   renderNode: (graphView, domNode,  datum, index, elements)=>{
@@ -951,21 +1006,39 @@ StoryGraphView.defaultProps = {
         .attr("width", graphView.props.nodeSize)
         .attr("height", graphView.props.nodeSize)
 
-      d3.select(domNode).append("use")
-        .classed("node-control", true)
-        .classed("node-control--add", true)
-        .attr("x", graphView.props.nodeSize/2 - 40)
-        .attr("y", -graphView.props.nodeSize/2 + 0)
-        .attr("width", graphView.props.nodeSize  * 0.8)
-        .attr("height", graphView.props.nodeSize * 0.8)
-        .attr('opacity', 0)
-        .on('mousedown', (d, i, nodes) => graphView.addNode(d, i, nodes) )
+
+      // Add controls
+      const controlPositions = {
+        add : {
+          x: graphView.props.nodeSize/2 - 40,
+          y: -graphView.props.nodeSize/2 + 0
+        },
+        voteup : {
+          x: graphView.props.nodeSize/2 - 40,
+          y: -graphView.props.nodeSize/2 + 100
+        }
+      }
+      keys(graphView.props.controlTypes).forEach((controlName) => {
+        const control = d3.select(domNode).append("use")
+          .classed("node-control", true)
+          .classed(`node-control--${controlName}`, true)
+          .attr("width", graphView.props.nodeSize  * 0.8)
+          .attr("height", graphView.props.nodeSize * 0.8)
+          .attr('opacity', 0)
+
+        const controlPos = controlPositions[controlName]
+
+        control
+          .attr("x", controlPos.x)
+          .attr("y", controlPos.y)
+          .on('mousedown', (d, i, nodes) => graphView.performAction(controlName, d, i, nodes) )
+      })
     }
 
     let style = graphView.getNodeStyle(datum, graphView.props.selected);
 
     d3.select(domNode)
-      .attr("style", style);
+      .attr("style", style)
 
     if(datum.subtype){
       d3.select(domNode).select("use.subtypeShape")
@@ -976,10 +1049,12 @@ StoryGraphView.defaultProps = {
     }
 
     d3.select(domNode).select("use.shape")
-        .attr("xlink:href", function(d){ return graphView.props.nodeTypes[d.type].shapeId });
+      .attr("xlink:href", function(d){ return graphView.props.nodeTypes[d.type].shapeId });
 
-    d3.select(domNode).select('use.node-control--add')
-      .attr("xlink:href", graphView.props.controlTypes.add.shapeId)
+    keys(graphView.props.controlTypes).forEach((control) => {
+      d3.select(domNode).select(`use.node-control--${control}`)
+        .attr("xlink:href", graphView.props.controlTypes[control].shapeId)
+    })
 
     graphView.renderNodeText(datum, domNode);
 
@@ -1023,7 +1098,31 @@ StoryGraphView.defaultProps = {
                 markerWidth={`${props.edgeArrowSize}`}
                 markerHeight={`${props.edgeArrowSize}`}
                 orient="auto">
-          <path style={ styles.arrow }
+          <path style={ styles.arrow.base }
+                d={`M0,-${props.edgeArrowSize/2}L${props.edgeArrowSize},0L0,${props.edgeArrowSize/2}`}>
+          </path>
+        </marker>
+
+        <marker id="end-arrow-accepted"
+                key="end-arrow-accepted"
+                viewBox={`0 -${props.edgeArrowSize/2} ${props.edgeArrowSize} ${props.edgeArrowSize}`}
+                refX={`${props.edgeArrowSize/2}`}
+                markerWidth={`${props.edgeArrowSize}`}
+                markerHeight={`${props.edgeArrowSize}`}
+                orient="auto">
+          <path style={ styles.arrow.accepted }
+                d={`M0,-${props.edgeArrowSize/2}L${props.edgeArrowSize},0L0,${props.edgeArrowSize/2}`}>
+          </path>
+        </marker>
+
+        <marker id="end-arrow-selected"
+                key="end-arrow-selected"
+                viewBox={`0 -${props.edgeArrowSize/2} ${props.edgeArrowSize} ${props.edgeArrowSize}`}
+                refX={`${props.edgeArrowSize/2}`}
+                markerWidth={`${props.edgeArrowSize}`}
+                markerHeight={`${props.edgeArrowSize}`}
+                orient="auto">
+          <path style={ styles.arrow.selected }
                 d={`M0,-${props.edgeArrowSize/2}L${props.edgeArrowSize},0L0,${props.edgeArrowSize/2}`}>
           </path>
         </marker>
