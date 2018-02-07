@@ -1,7 +1,7 @@
 /*
   Example usage of GraphView component
 */
-import {compact, random} from 'lodash'
+import {compact, random, has, keys} from 'lodash'
 
 const randomId = () => random(100, 99999)
 
@@ -27,6 +27,8 @@ const styles = {
 
 const NODE_KEY = "id" // Key used to identify nodes
 
+const ACCEPTION_THRESHOLD = 1
+
 // These keys are arbitrary (but must match the config)
 // However, GraphView renders text differently for empty types
 // so this has to be passed in if that behavior is desired.
@@ -47,6 +49,34 @@ const EMPTY_GRAPH = {
 const nodeById = {}
 
 const edgeMatrix = {}
+const edgeMatrixInv = {}
+
+const visitGraph = (graph, callback) => {
+  const visited = {}
+  function visit(f, node, parent=null, index=0) {
+    if (!has(visited, node.id)) {
+      visited[node.id] = true
+
+      const stop = f(node, parent, index) === false
+
+      if (!stop) {
+        node.children.forEach((childId, i) =>
+          visit(f, nodeById[childId], node, i) )
+      }
+
+    }
+  }
+
+  return visit(callback, graph)
+}
+
+const markAccepted = (node) => {
+  node.data.is_accepted = true
+  visitGraph(node, (node, parent, index) => {
+    node.data.is_accepted = node.data.votes >= ACCEPTION_THRESHOLD
+    return node.data.is_accepted
+  })
+}
 
 const buildEdge = (source, target, data={}, type=TRANSITION_TYPE) => ({
   isEdge: true,
@@ -68,12 +98,11 @@ const buildGraph = (story) => {
       x: 0,
       y: 0,
       type: 'text',
-      data: node,
+      data: node || {},
       children: []
     }
 
-    edgeMatrix[node.id] = edgeMatrix[node.id] ? edgeMatrix[node.id] : {}
-
+    edgeMatrix[node.id] = edgeMatrix[node.id] || {}
 
     graph.nodes.push(graphNode)
     nodeById[graphNode.id] = graphNode
@@ -84,6 +113,8 @@ const buildGraph = (story) => {
           graphNode.children.push(choice.next_node_id)
           const edge = buildEdge(node.id, choice.next_node_id, { text: choice.text, is_accepted: false })
           edgeMatrix[node.id][choice.next_node_id] = edge
+          edgeMatrixInv[choice.next_node_id] = edgeMatrixInv[choice.next_node_id] || {}
+          edgeMatrixInv[choice.next_node_id][node.id] = edge
           return edge
         }
       }))
@@ -93,28 +124,40 @@ const buildGraph = (story) => {
       graph.edges.push(edge)
       graphNode.children.push(node.next_node_id)
       edgeMatrix[node.id][node.next_node_id] = edge
+      edgeMatrixInv[node.next_node_id] = edgeMatrixInv[node.next_node_id] || {}
+      edgeMatrixInv[node.next_node_id][node.id] = edge
     }
 
   })
 
 
-  function setupGraph(node, x=0, y=0) {
+  function setupGraph(graph) {
 
-    node.x = x
-    node.y = y
+    graph.x = window.outerWidth*0.15
+    graph.y = window.outerHeight/2
 
-    node.children.forEach((childId, i) => {
-      const child = nodeById[childId]
-      const childY = node.children.length <= 1 ? y : y+450*(i - node.children.length/2 + 1)
-      child.data.is_accepted = node.data.is_accepted && child.data.is_accepted
-      edgeMatrix[node.id][childId].data.is_accepted = child.data.is_accepted
+    visitGraph(graph, (node, parent, index) => {
+      if (parent) {
+        node.data.is_accepted = node.data.is_accepted && parent.data.is_accepted
+        edgeMatrix[parent.id][node.id].data.is_accepted = node.data.is_accepted
 
-      setupGraph(child, x+300, childY)
+        const nodeX = parent.x + 300
+        const nodeY = parent.children.length <= 1 || index == 0
+          ? parent.y
+          : parent.y + 800 * (index - parent.children.length/2)
+
+          console.log(parent)
+          console.log(index, parent.children.length, nodeX, nodeY)
+
+        node.x = nodeX
+        node.y = nodeY
+      }
     })
 
   }
 
-  setupGraph(nodeById[story.start_node_id], window.outerWidth*0.15, window.outerHeight/2)
+  setupGraph(nodeById[story.start_node_id])
+
 
 
 
@@ -192,6 +235,17 @@ export default class StoryBuilder extends Component {
   // Edge 'mouseUp' handler
   onSelectEdge(viewEdge) {
     this.setState({selected: viewEdge});
+  }
+
+  onVoteUpNode(node) {
+    node.data.votes += 1
+
+    const parent_accepted = keys(edgeMatrixInv[node.id]).reduce((res, parentId) =>
+      res || nodeById[parentId].data.is_accepted, false )
+    if (parent_accepted && node.data.votes >= ACCEPTION_THRESHOLD) {
+      markAccepted(node)
+    }
+
   }
 
   // Updates the graph with a new node
@@ -347,7 +401,7 @@ export default class StoryBuilder extends Component {
                     getViewNode={this.getViewNode.bind(this)}
                     onSelectNode={this.onSelectNode.bind(this)}
                     onAddNode={this.onAddNode.bind(this)}
-                    onVoteUpNode={() => {}}
+                    onVoteUpNode={this.onVoteUpNode.bind(this)}
                     onUpdateNode={this.onUpdateNode.bind(this)}
                     onDeleteNode={this.onDeleteNode.bind(this)}
                     onSelectEdge={this.onSelectEdge.bind(this)}

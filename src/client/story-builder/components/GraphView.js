@@ -18,8 +18,8 @@ import * as color from 'material-ui/styles/colors';
 function makeStyles(
   primary='dodgerblue', light='#ccc', dark='black',
   background='#F9F9F9',
-  nodeColor=color.grey50,
-  transitionColor=color.grey300,
+  nodeColor=color.grey100,
+  transitionColor=color.grey400,
   acceptedNodeColor='white',
   acceptedTransitionColor=color.green200
 ) {
