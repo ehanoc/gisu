@@ -12,7 +12,7 @@ import GraphView from './components/GraphView'
 import GraphConfig from './graph-config.js' // Configures node/edge types
 
 import {
-  NodeInspector,
+  Panel,
   HotkeysTooltip
 } from './components'
 
@@ -99,7 +99,8 @@ const buildGraph = (story) => {
       y: 0,
       type: 'text',
       data: node || {},
-      children: []
+      children: [],
+      parent: null // not initialized
     }
 
     edgeMatrix[node.id] = edgeMatrix[node.id] || {}
@@ -138,6 +139,7 @@ const buildGraph = (story) => {
 
     visitGraph(graph, (node, parent, index) => {
       if (parent) {
+        node.parent = parent.id
         node.data.is_accepted = node.data.is_accepted && parent.data.is_accepted
         edgeMatrix[parent.id][node.id].data.is_accepted = node.data.is_accepted
 
@@ -224,6 +226,34 @@ export default class StoryBuilder extends Component {
 
   selectNode(node={}) {
     this.setState({selected: node});
+  }
+
+  getNode(id) {
+    return nodeById[new String(id)]
+  }
+
+  currentNode() {
+    return this.state.selected
+  }
+
+  previousNode() {
+    const previousNode = this.getNode(this.currentNode().parent)
+    if (previousNode) {
+      this.selectNode(previousNode)
+    } else {
+      console.error('No previous node')
+    }
+  }
+
+  nextNode(i=0) {
+    const children = this.currentNode().children
+    const nextNodeId = children[i]
+    const nextNode = this.getNode(nextNodeId)
+    if (nextNode) {
+      this.selectNode(nextNode)
+    } else {
+      console.error('No next node')
+    }
   }
 
   // Node 'mouseUp' handler
@@ -387,8 +417,10 @@ export default class StoryBuilder extends Component {
       <div id='graph' style={styles.graph}>
 
 
-
-        <NodeInspector docked selectedNode={ selected.isNode || selected.isEdge ? selected : null }/>
+        <Panel selectedNode={ selected.isNode || selected.isEdge ? selected : {} }
+          onPreviousNode={() => this.previousNode()}
+          onNextNode={() => this.nextNode()}
+        />
 
         <GraphView  ref={this.setGraphView.bind(this)}
                     nodeKey={NODE_KEY}

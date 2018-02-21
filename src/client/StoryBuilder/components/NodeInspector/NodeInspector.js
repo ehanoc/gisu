@@ -3,14 +3,7 @@ import ReactDOM from 'react-dom'
 
 import {capitalize} from 'lodash'
 
-import {
-  Card,
-  CardHeader,
-  CardActions,
-  FlatButton, TextField,
-  CardMedia, CardTitle,
-  CardText
-} from 'material-ui'
+import { Card } from 'material-ui'
 
 import EmptyNodeInspector from './EmptyNodeInspector'
 import SelectedNodeInspector from './SelectedNodeInspector'
@@ -26,18 +19,16 @@ export default class extends Component {
 
   render() {
 
-    const { selectedNode, docked } = this.props
+    const { selectedNode} = this.props
 
     return (
-      <div className={docked ? classes.NodeInspectorDocked : classes.NodeInspector}>
+      <div className={classes.NodeInspector}>
       {
         selectedNode != null
-          ? <SelectedNodeInspector selectedNode={selectedNode}/>
+          ? <SelectedNodeInspector selectedNode={selectedNode} />
           : <EmptyNodeInspector />
       }
       </div>
     )
-
-
   }
 }

@@ -36,8 +36,8 @@ module.exports = {
 
     entry: {
         app: [
-            './index.js',
-            './style.scss'
+          './index.js',
+          './style.scss'
         ],
         vendor: [
           'react', 'react-dom', 'react-router', 'lodash',
@@ -59,7 +59,25 @@ module.exports = {
           use: [
             {
               loader: 'babel-loader',
-              options: {},
+              options: {
+                babelrc: false,
+                presets: [
+                  [
+                    "latest", {
+                      "es2015": {
+                        "modules": false
+                      }
+                    }
+                  ],
+                  "stage-2",
+                  "react"
+                ],
+                plugins: [
+                  ["react-css-modules", { "context": "./src/client" }],
+                  "transform-object-assign",
+                  "transform-react-constant-elements"
+                ]
+              },
             },
           ],
         },

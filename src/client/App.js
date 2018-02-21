@@ -7,12 +7,10 @@ import { AppContainer } from 'react-hot-loader'
 import { BrowserRouter as Router } from 'react-router-dom'
 
 import StoryBuilder from './StoryBuilder/'
-
+import withRoot from './withRoot'
 
 const App = () => (
-  <MuiThemeProvider>
-    <StoryBuilder/>
-  </MuiThemeProvider>
+  <StoryBuilder/>
 )
 
-export default App
+export default withRoot(App)

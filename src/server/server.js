@@ -7,7 +7,7 @@ import config from './config.json'
 
 import api from './api'
 
-const bundlesServer = 'http://localhost:8081'
+const bundleUrl = 'http://localhost:8081/bundles'
 
 const app = express()
 app.server = http.createServer(app)
@@ -32,7 +32,7 @@ app.use(api)
 
 app.get('/', (req, res) => {
 	res.render('index.pug', {
-		bundlesServer,
+		bundleUrl,
 		title: 'Story Builder'
 	})
 })

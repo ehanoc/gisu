@@ -4,13 +4,7 @@ import classNames from 'classnames'
 
 import {
   Card,
-  CardHeader,
-  CardActions,
-  FlatButton,
-  TextField,
-  CardMedia,
-  CardTitle,
-  CardText
+  CardContent
 } from 'material-ui'
 
 import classes from './NodeInspector.scss'
@@ -21,9 +15,9 @@ export default class EmptyNodeInspector extends Component {
     return (
       <Card>
 
-        <CardText style={{paddingBottom: '10px'}}>
+        <CardContent style={{paddingBottom: '10px'}}>
           Select a Node or Transition to edit
-        </CardText>
+        </CardContent>
 
       </Card>
     )

@@ -15,9 +15,9 @@
     "start:server": "npm run tool:nodemon -- index.js",
     "start:client": "npm run watch:local",
     "start": "npm run start:client & npm run start:server",
-    "kill" : "fuser -k 8080/tcp; fuser -k 8081/tcp; exit 0",
+    "kill": "fuser -k 8080/tcp; fuser -k 8081/tcp; exit 0",
     "tool:webpack": "node ./node_modules/.bin/webpack",
-    "tool:webpack:local": "node ./node_modules/.bin/webpack-dev-server --config ./webpack.config.local.js --hot",
+    "tool:webpack:local": "node ./node_modules/.bin/webpack-dev-server --config ./webpack.config.local.js",
     "tool:nodemon": "node ./node_modules/.bin/nodemon -V -w ./src/server --cwd ./src/server"
   },
   "repository": {
@@ -38,8 +38,9 @@
     "babel-plugin-react-css-modules": "^3.3.3",
     "babel-plugin-transform-object-assign": "^6.22.0",
     "babel-plugin-transform-react-constant-elements": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
-    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-latest": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
     "babel-register": "^6.26.0",
@@ -55,7 +56,8 @@
     "html-webpack-plugin": "^2.30.1",
     "http": "^0.0.0",
     "lodash": "^4.17.4",
-    "material-ui": "^0.20.0",
+    "material-ui": "next",
+    "material-ui-icons": "^1.0.0-beta.17",
     "morgan": "^1.9.0",
     "node-jsx": "^0.13.3",
     "node-sass": "^4.7.2",
@@ -73,12 +75,14 @@
     "svg-url-loader": "^2.3.1",
     "url-loader": "^0.6.2",
     "webpack": "^3.10.0",
-    "webpack-bundle-tracker": "^0.2.1",
     "webpack-stream": "^4.0.0",
     "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {
     "nodemon": "^1.14.11",
-    "webpack-dev-server": "^2.11.1"
+    "webpack-bundle-tracker": "^0.2.1",
+    "webpack-dev-middleware": "^2.0.5",
+    "webpack-dev-server": "^2.11.1",
+    "webpack-hot-middleware": "^2.21.0"
   }
 }

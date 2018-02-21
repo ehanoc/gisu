@@ -8,10 +8,12 @@ import {
   CardHeader,
   CardActions,
   FlatButton, TextField,
-  CardMedia, CardTitle,
-  CardText
+  CardMedia,
+  CardContent,
+  Button
 } from 'material-ui'
 
+import classes from './NodeInspector.scss'
 
 export default class SelectedNodeInspector extends Component {
 
@@ -21,40 +23,50 @@ export default class SelectedNodeInspector extends Component {
 
     return (
       <Card>
-
         <CardHeader
           title={selectedNode.title}
           subtitle={capitalize(selectedNode.type)}
         />
 
-        <CardMedia>
-          { selectedNode.isNode ? <img src="http://via.placeholder.com/350x150?text=No%20Background%20image" alt="" /> : null }
-        </CardMedia>
+        <CardMedia
+          className={classes.NodeInspectorMedia}
+          image={
+            selectedNode.isNode
+            ? "http://via.placeholder.com/350x150?text=No%20Background%20image"
+            : "http://via.placeholder.com/350x150?text=No%20Background%20image"
+          }
+        />
 
 
-        <CardText>
+        <CardContent>
           {
             data.text
               ? <TextField
-                style={{width: '100%'}}
-                hintText="Enter node's text"
-                value={data.text}
-              />
+                  type="text"
+                  style={{width: '100%'}}
+                  label="Story node text "
+                  placeholder="Enter node's text"
+                  rows="4"
+                  fullWidth
+                  defaultValue={data.text}
+                />
               : null
           }
-        </CardText>
+        </CardContent>
 
 
 
         <CardActions>
-          <FlatButton label="Update" />
+          <Button>Update</Button>
           {
             selectedNode.isNode
-              ? <FlatButton label="Vote Up" />
+              ? <Button>Vote Up</Button>
               : null
           }
-          <FlatButton label="Cancel" />
         </CardActions>
+
+
+
       </Card>
     )
   }

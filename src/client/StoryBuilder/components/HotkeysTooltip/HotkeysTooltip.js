@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 
 import {
   Card, CardHeader, CardActions,
-  CardMedia, CardTitle, CardText,
+  CardMedia, CardTitle, CardContent,
   FlatButton, TextField,
   List, ListItem
 } from 'material-ui';
@@ -30,14 +30,14 @@ export default class extends Component {
             showExpandableButton={true}
           />
 
-          <CardText expandable={true}>
+          <CardContent expandable={true}>
             <List>
               <ListItem primaryText={"Add nodes with Shift + Click"} />
               <ListItem primaryText={"Add edges with Shift + Drag"} />
               <ListItem primaryText={"Delete nodes or edges by selecting and pressing Delete"} />
               <ListItem primaryText={"Click and drag nodes to change their position"} />
             </List>
-          </CardText>
+          </CardContent>
         </Card>
       </div>
     )
