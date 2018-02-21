@@ -8,10 +8,17 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node ./node_modules/webpack/bin/webpack.js --config ./webpack.config.local.js",
-    "watch": "node ./node_modules/webpack/bin/webpack.js --watch --config ./webpack.config.local.js",
-    "server": "node ./node_modules/nodemon/bin/nodemon.js -V -w ./src/server index.js --cwd ./src/server",
-    "start": "npm run watch & npm run server"
+    "build:local": "npm run tool:webpack -- --config ./webpack.config.local.js",
+    "watch:local": "npm run tool:webpack:local",
+    "watch": "npm run build -- --watch",
+    "build": "npm run tool:webpack -- --config ./webpack.config.local.js",
+    "start:server": "npm run tool:nodemon -- index.js",
+    "start:client": "npm run watch:local",
+    "start": "npm run start:client & npm run start:server",
+    "kill" : "fuser -k 8080/tcp; fuser -k 8081/tcp; exit 0",
+    "tool:webpack": "node ./node_modules/.bin/webpack",
+    "tool:webpack:local": "node ./node_modules/.bin/webpack-dev-server --config ./webpack.config.local.js --hot",
+    "tool:nodemon": "node ./node_modules/.bin/nodemon -V -w ./src/server --cwd ./src/server"
   },
   "repository": {
     "type": "git",
@@ -28,13 +35,16 @@
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
+    "babel-plugin-react-css-modules": "^3.3.3",
     "babel-plugin-transform-object-assign": "^6.22.0",
+    "babel-plugin-transform-react-constant-elements": "^6.23.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
     "babel-register": "^6.26.0",
     "body-parser": "^1.18.2",
+    "classnames": "^2.2.5",
     "cors": "^2.8.4",
     "css-loader": "^0.28.9",
     "d3": "^4.13.0",
@@ -53,6 +63,7 @@
     "radium": "^0.21.2",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "react-hot-loader": "^3.1.3",
     "react-icons": "^2.2.7",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
@@ -67,6 +78,7 @@
     "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {
-    "nodemon": "^1.14.11"
+    "nodemon": "^1.14.11",
+    "webpack-dev-server": "^2.11.1"
   }
 }

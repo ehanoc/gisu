@@ -1,8 +1,8 @@
-const express = require('express')
+import {Router} from 'express'
+import {getStory} from '../../data'
 
-const Data = require('../../data')
 
-const router = express.Router()
+const router = new Router()
 
 
 router.get('/', (req, res) => {
@@ -12,9 +12,8 @@ router.get('/', (req, res) => {
 
 router.get('/:storyId/', (req, res) => {
   console.log('retrieve story', req.params.storyId)
-  res.json(Data.getStory(req.params.storyId))
+  res.json(getStory(req.params.storyId))
 })
 
 
-
-module.exports = router
+export default router

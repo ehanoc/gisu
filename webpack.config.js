@@ -14,7 +14,7 @@ const includePaths = [
 const clientDir = `${__dirname}/src/client`
 const serverDir = `${__dirname}/src/server`
 const srcDir = `${clientDir}`
-const destDir = `${serverDir}/static`
+const destDir = `${serverDir}/static/bundles/`
 
 const outputSourceMaps = false
 
@@ -35,9 +35,9 @@ module.exports = {
     },
 
     entry: {
-        storybuilder: [
-            './story-builder/index.js',
-            './story-builder/style.scss'
+        app: [
+            './index.js',
+            './style.scss'
         ],
         vendor: [
           'react', 'react-dom', 'react-router', 'lodash',
@@ -56,14 +56,12 @@ module.exports = {
           test: /\.(js|jsx)$/,
           exclude: /node_modules/,
           include: join(__dirname, 'src'),
-          use: [{
-            loader: 'babel-loader',
-            options: {
-              babelrc: false,
-              presets: ['es2015', 'react', 'stage-2'],
-              plugins: [ 'transform-object-assign'],
+          use: [
+            {
+              loader: 'babel-loader',
+              options: {},
             },
-          }],
+          ],
         },
         {
           test: /\.svg/,
@@ -78,7 +76,8 @@ module.exports = {
           test: /\.(css|sass|scss)$/,
           use: extractSass.extract({
             use: [
-              { loader: 'css-loader'},
+              //{ loader: 'style-loader'},
+              { loader: 'css-loader?importLoader=1&modules&localIdentName=GS-[name]__[local]'},
               { loader: 'sass-loader', options: { includePaths } }
             ]
           })
@@ -94,7 +93,7 @@ module.exports = {
       }),
       new webpack.optimize.OccurrenceOrderPlugin(),
       new webpack.optimize.ModuleConcatenationPlugin(),
-      //new webpack.NoEmitOnErrorsPslugin(),
+      //new MinifyPlugin(),
       extractSass,
       new webpack.DefinePlugin({
         BUILD_DATE: JSON.stringify(new Date()),

@@ -1,12 +1,8 @@
-const _ = require('lodash')
+import {has} from 'lodash'
 
 const stories = {
   0: require('./stories/0.json')
 }
 
-const getStory = (id) =>
-  _.has(stories, id) ? stories[id] : null
-
-module.exports = {
-  getStory
-}
+export const getStory = (id) =>
+  has(stories, id) ? stories[id] : null

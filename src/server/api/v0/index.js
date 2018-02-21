@@ -1,9 +1,10 @@
-const express = require('express')
+import {Router} from 'express'
+import StoriesAPI from './stories'
+import NodesAPI from './nodes'
 
+const router = new Router()
 
-const router = express.Router()
+router.use('/stories', StoriesAPI)
+router.use('/nodes', NodesAPI)
 
-router.use('/stories', require('./stories'))
-router.use('/nodes', require('./nodes'))
-
-module.exports = router
+export default router

@@ -1,7 +1,7 @@
-const express = require('express')
+import {Router} from 'express'
 
 
-const router = express.Router()
+const router = new Router()
 
 
 router.post('/:nodeId/upvote/', (req, res) => {
@@ -9,5 +9,4 @@ router.post('/:nodeId/upvote/', (req, res) => {
 })
 
 
-
-module.exports = router
+export default router

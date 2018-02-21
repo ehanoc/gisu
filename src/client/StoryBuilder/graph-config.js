@@ -1,11 +1,20 @@
 /*
   Example config for GraphView component
 */
-import React from 'react';
-import FontIcon from 'material-ui';
+import React from 'react'
+import FontIcon from 'material-ui'
+
+import classes from './StoryBuilder.scss'
+
+
+const CircularControlClass = {
+  add : classes.AddNodeControl,
+  voteup : classes.VoteupNodeControl
+}
+
 
 const CircularControl = (action, icon, color) => (
-  <symbol viewBox="0 0 100 100" id={`${action}-node-control`}>
+  <symbol viewBox="0 0 100 100" id={CircularControlClass[action]}>
     <circle cx="20" cy="20" r="20" className={`${color} hover`}></circle>
     <text textAnchor="middle" x="20" y="30" fontSize="30px" className={`white fa`} dy="-0.25em">{icon}</text>
   </symbol>

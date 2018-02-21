@@ -3,32 +3,24 @@ import ReactDOM from 'react-dom'
 
 import {capitalize} from 'lodash'
 
-import {Card, CardHeader, CardActions, FlatButton, TextField, CardMedia, CardTitle, CardText} from 'material-ui';
+import {
+  Card,
+  CardHeader,
+  CardActions,
+  FlatButton, TextField,
+  CardMedia, CardTitle,
+  CardText
+} from 'material-ui'
 
 
-class EmptyNodeInspector extends Component {
-  render() {
-    return (
-      <Card className="node-inspector">
-
-        <CardText style={{paddingBottom: '10px'}}>
-          Select a Node or Transition to edit
-        </CardText>
-
-      </Card>
-    )
-  }
-}
-
-
-class SelectedNodeInspector extends Component {
+export default class SelectedNodeInspector extends Component {
 
   render() {
     const { selectedNode } = this.props
     const data = selectedNode.data || {}
 
     return (
-      <Card className="node-inspector">
+      <Card>
 
         <CardHeader
           title={selectedNode.title}
@@ -65,25 +57,5 @@ class SelectedNodeInspector extends Component {
         </CardActions>
       </Card>
     )
-  }
-}
-
-
-export default class extends Component {
-
-  constructor(props) {
-    super(props)
-  }
-
-  render() {
-
-    const { selectedNode } = this.props
-
-
-    return selectedNode != null
-      ? <SelectedNodeInspector selectedNode={selectedNode}/>
-      : <EmptyNodeInspector />
-
-
   }
 }

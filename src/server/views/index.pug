@@ -1,1 +1,14 @@
-extends story-builder
+extends layout
+
+block styles
+  link(rel='stylesheet', href=bundlesServer + '/static/bundles/app.bundle.css')
+  link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Roboto:300,400,500")
+  link(rel="stylesheet", href="https://fonts.googleapis.com/icon?family=Material+Icons")
+  link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css")
+
+block scripts
+  script(src=bundlesServer + '/static/bundles/vendor.bundle.js')
+  script(src=bundlesServer + '/static/bundles/app.bundle.js')
+
+block content
+  #root(style='position: absolute; top: 0; bottom: 0; right: 0; left: 0;')

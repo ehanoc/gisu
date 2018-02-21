@@ -141,10 +141,10 @@ const buildGraph = (story) => {
         node.data.is_accepted = node.data.is_accepted && parent.data.is_accepted
         edgeMatrix[parent.id][node.id].data.is_accepted = node.data.is_accepted
 
-        const nodeX = parent.x + 300
-        const nodeY = parent.children.length <= 1 || index == 0
-          ? parent.y
-          : parent.y + 800 * (index - parent.children.length/2)
+        const nodeY = parent.y + 300
+        const nodeX = parent.children.length <= 1 || index == 0
+          ? parent.x
+          : parent.x + 800 * (index - parent.children.length/2)
 
           console.log(parent)
           console.log(index, parent.children.length, nodeX, nodeY)
@@ -180,7 +180,7 @@ export default class StoryBuilder extends Component {
       .then((story) => {
         const graph = buildGraph(story)
         console.log('Received', graph)
-        this.setState({graph})
+        this.setState({graph, selected : graph.nodes[0] })
       })
 
   }
@@ -222,13 +222,15 @@ export default class StoryBuilder extends Component {
     this.setState({graph: graph});
   }
 
+  selectNode(node={}) {
+    this.setState({selected: node});
+  }
+
   // Node 'mouseUp' handler
   onSelectNode(viewNode) {
     // Deselect events will send Null viewNode
-    if (!!viewNode){
-      this.setState({selected: viewNode});
-    } else{
-      this.setState({selected: {}});
+    if (viewNode) {
+      this.selectNode(viewNode)
     }
   }
 
@@ -258,9 +260,9 @@ export default class StoryBuilder extends Component {
     // The subtype geometry will underlay the 'type' geometry for a node
     const type = Math.random() < 0.25 ? CHOICE_TYPE : TEXT_TYPE;
 
-    const yRange = parent.children.reduce((range, c) =>
-        [Math.min(range[0], nodeById[c].y), Math.max(range[1], nodeById[c].y)]
-      , [parent.y, parent.y])
+    const xRange = parent.children.reduce((range, c) =>
+        [Math.min(range[0], nodeById[c].x), Math.max(range[1], nodeById[c].x)]
+      , [parent.x, parent.x])
 
     console.log('range', yRange)
 
@@ -272,13 +274,13 @@ export default class StoryBuilder extends Component {
       title: `Node ${id}`,
       isNode: true,
       type,
-      x: parent.x + 300,
-      y: parent.children.length == 0
-        ? parent.y
+      y: parent.y + 300,
+      x: parent.children.length == 0
+        ? parent.x
         : (
           insertAbove
-            ? yRange[0] - 175
-            : yRange[1] + 175
+            ? xRange[0] - 175
+            : xRange[1] + 175
         ),
       type: 'text',
       data: {
@@ -384,9 +386,9 @@ export default class StoryBuilder extends Component {
     return (
       <div id='graph' style={styles.graph}>
 
-        <HotkeysTooltip />
 
-        <NodeInspector selectedNode={ selected.isNode || selected.isEdge ? selected : null }/>
+
+        <NodeInspector docked selectedNode={ selected.isNode || selected.isEdge ? selected : null }/>
 
         <GraphView  ref={this.setGraphView.bind(this)}
                     nodeKey={NODE_KEY}

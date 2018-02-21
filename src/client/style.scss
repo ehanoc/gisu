@@ -1,0 +1,15 @@
+$colors : (
+  'pink' : #E91E63,
+  'cyan' : #00BCD4,
+  'white' : #fff
+);
+
+@each $name, $hex in $colors {
+  .#{$name} {
+    fill: $hex;
+  }
+
+  .#{$name}.hover:hover {
+    fill: darken($hex, 10%);
+  }
+}
