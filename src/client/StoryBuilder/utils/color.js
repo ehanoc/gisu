@@ -1,7 +1,13 @@
 import grey from 'material-ui/colors/grey';
 import green from 'material-ui/colors/green';
+import blue from 'material-ui/colors/blue';
 
 export default {
+
+  primary: blue[500],
+  light: grey[50],
+  dark: grey[800],
+  background: '#F9F9F9',
 
   node: {
     accepted: 'white',
@@ -9,8 +15,8 @@ export default {
   },
 
   transition: {
-    normal: grey[200],
-    accepted : grey[400],
+    normal: grey[300],
+    accepted : blue[300],
   },
 
 }

@@ -114,8 +114,8 @@ function makeStyles(
 
   // Styles need to be strings for D3 to apply them all at once
   styles.node.baseString = styleToString(styles.node.base)
-  styles.node.selectedString = styleToString({...styles.node.base, ...styles.node.selected})
   styles.node.acceptedString = styleToString({...styles.node.base, ...styles.node.accepted})
+  styles.node.selectedString = styleToString({...styles.node.base, ...styles.node.selected})
   styles.text.baseString= styleToString(styles.text.base)
   styles.text.selectedString = styleToString({...styles.text.base, ...styles.text.selected})
   styles.edge.baseString = styleToString(styles.edge.base)
@@ -1001,11 +1001,11 @@ StoryGraphView.defaultProps = {
   readOnly: false,
   maxTitleChars: 9,
   transitionTime: 150,
-  primary: color.blue800,
-  light: color.grey50,
-  acceptedNodeColor: color.green100,
-  dark: color.grey900,
-  background: '#F9F9F9',
+  primary: color.primary,
+  light: color.light,
+  acceptedNodeColor: color.node.accepted,
+  dark: color.dark,
+  background: color.background,
   gridSize: 40960, // The point grid is fixed
   gridSpacing: 36,
   gridDot: 2,
