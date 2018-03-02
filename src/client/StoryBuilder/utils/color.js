@@ -5,6 +5,8 @@ import blue from 'material-ui/colors/blue';
 export default {
 
   primary: blue[500],
+  primaryLight: blue[200],
+  primaryDark: blue[800],
   light: grey[50],
   dark: grey[800],
   background: '#F9F9F9',
