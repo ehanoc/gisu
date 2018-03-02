@@ -13,7 +13,7 @@ import {
   Paper
 } from 'material-ui'
 
-export default ({selectedNode, onPreviousNode, onNextNode, className}) => {
+export default ({selectedNode, onPreviousNode, onNextNode, onUpdateNode, className}) => {
   const navigationBackProps = {
     disabled : selectedNode.parent == null,
     direction : -1
@@ -28,7 +28,7 @@ export default ({selectedNode, onPreviousNode, onNextNode, className}) => {
     <Paper classes={{root: classnames(classes.Panel, className)}}>
 
       <NodeNavigation {...navigationBackProps} onClick={onPreviousNode}/>
-      <NodeInspector selectedNode={selectedNode} />
+      <NodeInspector selectedNode={selectedNode} onUpdateNode={onUpdateNode} />
       <NodeNavigation {...navigationForwardProps} onClick={onNextNode}/>
 
     </Paper>

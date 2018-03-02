@@ -19,13 +19,13 @@ export default class extends Component {
 
   render() {
 
-    const { selectedNode} = this.props
+    const { selectedNode, onUpdateNode } = this.props
 
     return (
       <div className={classes.NodeInspector}>
       {
         selectedNode != null
-          ? <SelectedNodeInspector selectedNode={selectedNode} />
+          ? <SelectedNodeInspector selectedNode={selectedNode} onUpdateNode={onUpdateNode} />
           : <EmptyNodeInspector />
       }
       </div>

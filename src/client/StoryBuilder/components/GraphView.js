@@ -576,7 +576,6 @@ class StoryGraphView extends Component {
     var bbox
     nodes.each(function (d, i, nodes) {
       var node = d3.select(this)
-      console.log('XX: VieBox is', bbox)
       var localBBox = node.node().getBBox()
       localBBox.x += d.x
       localBBox.y += d.y
@@ -587,21 +586,16 @@ class StoryGraphView extends Component {
       }
     })
 
-    console.log('YY: VieBox is', bbox)
     return bbox
   }
 
   centerOn(elementData) {
-    console.log('Center on', elementData)
-
     var nodes = elementData.isNode
       ? this.getNode(elementData)
       : this.getTransitionNodes(elementData)
 
     var bbox = this.getBoundingBox(nodes)
     bbox = Geometry.Rect.scale(bbox, elementData.isNode ? 5 : 2)
-
-    console.log('Viewbox is', bbox)
 
     this.zoomToBBox(bbox)
   }

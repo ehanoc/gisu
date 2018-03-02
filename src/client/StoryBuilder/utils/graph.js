@@ -49,6 +49,10 @@ export class GraphNode {
     return this
   }
 
+  updateData(data) {
+    extend(this.data, data)
+  }
+
   markAsDeleted(value=true) {
     this.deleted = value
   }
@@ -64,13 +68,18 @@ export class GraphEdge {
     this.isEdge = true
     this.source = sourceId
     this.target = targetId
-    this.data = data
+    this.data = extend({is_accepted:false}, data)
     this.type = type
     this.deleted = false
   }
 
   markAsDeleted(value=true) {
     this.deleted = value
+  }
+
+  accept(value=true) {
+    this.data.is_accepted = value
+    return this
   }
 
   swap() {
@@ -107,10 +116,19 @@ export default class Graph {
   }
 
   accept(node, acceptation_threshold) {
-    this.visit((node, parent, index) => {
-      node.accept(node.data.votes >= acceptation_threshold)
-      return node.isAccepted()
-    }, this._node(node))
+    if (!this.getParent(node) || this.getParent(node).isAccepted()) {
+      this.visit((node, parent, index) => {
+        node.accept(node.data.votes >= acceptation_threshold)
+        if (parent) {
+          this.getEdge(parent, node).accept(node.isAccepted())
+        }
+        return node.isAccepted()
+      }, this._node(node))
+
+      if (this.getParent(node)) {
+        this.getEdge(this.getParent(node), node).accept(node.isAccepted())
+      }
+    }
     return this
   }
 
@@ -196,7 +214,6 @@ export default class Graph {
 
   updateNode(node) {
     this.nodes[node.index] = node
-
     return this
   }
 

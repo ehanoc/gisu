@@ -20,7 +20,7 @@ import {
   HotkeysTooltip
 } from './components'
 
-import {Story} from '../api'
+import {Story, Node} from '../api'
 
 const styles = {
   graph: {
@@ -106,6 +106,18 @@ export default class StoryBuilder extends Component {
     }
   }
 
+  updateStoryNode(data) {
+    Node.update(data.id, data)
+    var node = this.graph().getNode(data.id)
+    node.updateData(data)
+    this.calculateAcception(node)
+    this.forceUpdate()
+  }
+
+  calculateAcception(node) {
+      this.graph().accept(node,  ACCEPTION_THRESHOLD)
+  }
+
   /*
    * Handlers/Interaction
    */
@@ -133,9 +145,7 @@ export default class StoryBuilder extends Component {
 
   onVoteUpNode(node) {
     node.data.votes += 1
-    if (this.getParent(node).isAccepted()) {
-      this.graph().accept(node,  ACCEPTION_THRESHOLD)
-    }
+    this.calculateAcception(node)
   }
 
   // Updates the graph with a new node
@@ -241,6 +251,7 @@ export default class StoryBuilder extends Component {
         <Panel
           className={classes.Panel}
           selectedNode={ selected.isNode || selected.isEdge ? selected : {} }
+          onUpdateNode={(data) => this.updateStoryNode(data)}
           onPreviousNode={() => this.previousNode()}
           onNextNode={() => this.nextNode()}
         />
