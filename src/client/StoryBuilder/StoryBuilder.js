@@ -247,6 +247,7 @@ export default class StoryBuilder extends Component {
 
         <GraphView  ref={this.setGraphView.bind(this)}
                     className={classes.GraphView}
+                    graphControls={false}
                     nodeKey={NODE_KEY}
                     emptyType={TEXT_TYPE}
                     nodes={nodes}
