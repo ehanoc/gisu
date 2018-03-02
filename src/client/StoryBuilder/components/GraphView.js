@@ -7,6 +7,8 @@ import {styleToString} from '../utils/'
 
 import {keys} from 'lodash'
 
+import Geometry from '../utils/geometry'
+
 import * as d3 from 'd3'
 window.d3 = d3
 import {moveToBack} from '../utils/d3'
@@ -558,18 +560,50 @@ class StoryGraphView extends Component {
     }
   }
 
-  getElement(d) {
-    return d3.select(d.isNode ? `#node-${d.id}` : `#edge-${d.id}`)
+  getNode(d) {
+    return d3.select(`#node-${d.id}`)
+  }
+
+  getTransition(d) {
+    return d3.select(`#edge-${d.source}-${d.target}`)
+  }
+
+  getTransitionNodes(d) {
+    return d3.selectAll(`#node-${d.source},#node-${d.target}`)
+  }
+
+  getBoundingBox(nodes) {
+    var bbox
+    nodes.each(function (d, i, nodes) {
+      var node = d3.select(this)
+      console.log('XX: VieBox is', bbox)
+      var localBBox = node.node().getBBox()
+      localBBox.x += d.x
+      localBBox.y += d.y
+      if (bbox == null) {
+        bbox = localBBox
+      } else {
+        bbox = Geometry.Rect.union(bbox, localBBox)
+      }
+    })
+
+    console.log('YY: VieBox is', bbox)
+    return bbox
   }
 
   centerOn(elementData) {
-    var element = this.getElement(elementData)
-    console.log(element)
-    var viewBox = element.node().getBBox()
-    viewBox.x += elementData.x
-    viewBox.y += elementData.y
-    console.log(viewBox)
-    this.zoomToBBox(viewBox)
+    console.log('Center on', elementData)
+
+    var nodes = elementData.isNode
+      ? this.getNode(elementData)
+      : this.getTransitionNodes(elementData)
+
+    var bbox = this.getBoundingBox(nodes)
+    bbox = Geometry.Rect.scale(bbox, elementData.isNode ? 5 : 2)
+
+    console.log('Viewbox is', bbox)
+
+    this.zoomToBBox(bbox)
   }
 
   // Zooms to contents of this.refs.entities
@@ -778,7 +812,7 @@ class StoryGraphView extends Component {
 
     // Add New
     var newEdges = edges.enter().append("g")
-      .attr("id", (d) => `edge-${d.id}`)
+      .attr("id", (d) => `edge-${d.source}-${d.target}`)
       .classed("edge", true)
 
     newEdges
