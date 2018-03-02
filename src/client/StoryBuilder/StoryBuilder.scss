@@ -7,3 +7,16 @@
     stroke: transparent;
   }
 }
+
+.GraphView {
+  width: 65%;
+}
+
+.Panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  max-width: 420px;
+  width: 35%;
+}

@@ -8,6 +8,7 @@ import {styleToString} from '../utils/'
 import {keys} from 'lodash'
 
 import * as d3 from 'd3'
+window.d3 = d3
 import {moveToBack} from '../utils/d3'
 import Radium from 'radium'
 import GraphControls from './GraphControls.js'
@@ -557,13 +558,28 @@ class StoryGraphView extends Component {
     }
   }
 
+  getElement(d) {
+    return d3.select(d.isNode ? `#node-${d.id}` : `#edge-${d.id}`)
+  }
+
+  centerOn(elementData) {
+    var element = this.getElement(elementData)
+    console.log(element)
+    var viewBox = element.node().getBBox()
+    viewBox.x += elementData.x
+    viewBox.y += elementData.y
+    console.log(viewBox)
+    this.zoomToBBox(viewBox)
+  }
+
   // Zooms to contents of this.refs.entities
   handleZoomToFit() {
-    const parent = d3.select(this.viewWrapper).node()
     const entities = d3.select(this.entities).node()
+    this.zoomToBBox(entities.getBBox())
+  }
 
-    const viewBBox = entities.getBBox()
-
+  zoomToBBox(viewBBox) {
+    const parent = d3.select(this.viewWrapper).node()
     const width = parent.clientWidth
     const height = parent.clientHeight
 
@@ -761,7 +777,9 @@ class StoryGraphView extends Component {
         .remove()
 
     // Add New
-    var newEdges = edges.enter().append("g").classed("edge", true)
+    var newEdges = edges.enter().append("g")
+      .attr("id", (d) => `edge-${d.id}`)
+      .classed("edge", true)
 
     newEdges
       .on("mousedown", this.handleEdgeMouseDown)
@@ -800,7 +818,9 @@ class StoryGraphView extends Component {
       .remove()
 
     // Add New
-    var newNodes = nodes.enter().append("g").classed("node", true)
+    var newNodes = nodes.enter().append("g")
+      .attr("id", (d) => `node-${d.id}`)
+      .classed("node", true)
 
     newNodes.on("mousedown", this.handleNodeMouseDown)
       .on("mouseup", this.handleNodeMouseUp)
@@ -849,6 +869,7 @@ class StoryGraphView extends Component {
     return (
       <div  id='viewWrapper'
             ref={(el) => this.viewWrapper = el}
+            className={this.props.className}
             style={[
               styles.wrapper.base,
               !!this.state.focused && styles.wrapper.focused,

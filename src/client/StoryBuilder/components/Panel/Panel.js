@@ -1,5 +1,7 @@
 import React, {Component} from 'react'
 
+import classnames from 'classnames'
+
 import classes from './Panel.scss'
 
 import {
@@ -11,7 +13,7 @@ import {
   Paper
 } from 'material-ui'
 
-export default ({selectedNode, onPreviousNode, onNextNode}) => {
+export default ({selectedNode, onPreviousNode, onNextNode, className}) => {
   const navigationBackProps = {
     disabled : selectedNode.parent == null,
     direction : -1
@@ -23,7 +25,7 @@ export default ({selectedNode, onPreviousNode, onNextNode}) => {
   }
 
   return (
-    <Paper classes={{root:classes.Panel}}>
+    <Paper classes={{root: classnames(classes.Panel, className)}}>
 
       <NodeNavigation {...navigationBackProps} onClick={onPreviousNode}/>
       <NodeInspector selectedNode={selectedNode} />

@@ -13,6 +13,8 @@ import GraphConfig from './graph-config.js' // Configures node/edge types
 
 import GraphBuilder from './utils/graph-builder'
 
+import classes from './StoryBuilder.scss'
+
 import {
   Panel,
   HotkeysTooltip
@@ -77,7 +79,8 @@ export default class StoryBuilder extends Component {
 
 
   selectElement(element={}) {
-    this.setState({selected: element});
+    this.setState({selected: element})
+    this.graphView.centerOn(element);
   }
 
   currentNode() {
@@ -235,12 +238,15 @@ export default class StoryBuilder extends Component {
       <div id='graph' style={styles.graph}>
 
 
-        <Panel selectedNode={ selected.isNode || selected.isEdge ? selected : {} }
+        <Panel
+          className={classes.Panel}
+          selectedNode={ selected.isNode || selected.isEdge ? selected : {} }
           onPreviousNode={() => this.previousNode()}
           onNextNode={() => this.nextNode()}
         />
 
         <GraphView  ref={this.setGraphView.bind(this)}
+                    className={classes.GraphView}
                     nodeKey={NODE_KEY}
                     emptyType={TEXT_TYPE}
                     nodes={nodes}
