@@ -1,11 +1,32 @@
-#AddNodeControl, #VoteupNodeControl {
+@import '../style';
+
+@mixin node-control($background-color, $content-color:color('white')) {
   circle {
+    fill: $background-color !important;
     stroke: transparent;
+  }
+  text {
+    stroke: $content-color !important;
+    fill: $content-color !important;
   }
 
-  text {
-    stroke: transparent;
+  &:hover {
+    circle {
+      fill: darken($background-color, 10%) !important;
+    }
+    text {
+      stroke: darken($content-color, 10%) !important;
+      fill: darken($content-color, 10%) !important;
+    }
   }
+}
+
+#AddNodeControl {
+  @include node-control(color(pink));
+}
+
+#VoteupNodeControl {
+  @include node-control(color(cyan));
 }
 
 .GraphView {

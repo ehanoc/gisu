@@ -4,6 +4,10 @@ $colors : (
   'white' : #fff
 );
 
+@function color($name) {
+  @return map-get($colors, inspect($name));
+}
+
 @each $name, $hex in $colors {
   .#{$name} {
     fill: $hex;

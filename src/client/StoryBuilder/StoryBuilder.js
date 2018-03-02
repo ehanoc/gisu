@@ -172,7 +172,7 @@ export default class StoryBuilder extends Component {
     const insertAbove = parent.children.length % 2 != 0
 
     const xRange = parent.children.reduce((range, c) =>
-    [Math.min(range[0], nodeById[c].x), Math.max(range[1], nodeById[c].x)]
+    [Math.min(range[0], graph.getNode(c).x), Math.max(range[1], graph.getNode(c).x)]
     , [parent.x, parent.x])
 
     node.y = parent.y + 300,

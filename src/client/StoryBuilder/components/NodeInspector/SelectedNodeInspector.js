@@ -61,7 +61,7 @@ export default class SelectedNodeInspector extends Component {
   }
 
   render() {
-    const { selectedNode, onUpdateNode } = this.props
+    const { selectedNode, onUpdateNode, limitUpvote=false } = this.props
     this._setNode(selectedNode)
 
 
@@ -109,7 +109,7 @@ export default class SelectedNodeInspector extends Component {
           <Button disabled={!modified} onClick={() => this.updateNode(onUpdateNode)}>Update</Button>
           {
             selectedNode.isNode
-              ? <Button disabled={upvoted} onClick={() => this.upvote(onUpdateNode)}>Vote Up</Button>
+              ? <Button disabled={limitUpvote && upvoted} onClick={() => this.upvote(onUpdateNode)}>Vote Up</Button>
               : null
           }
         </CardActions>

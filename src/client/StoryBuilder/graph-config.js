@@ -2,7 +2,6 @@
   Example config for GraphView component
 */
 import React from 'react'
-import FontIcon from 'material-ui'
 
 import classes from './StoryBuilder.scss'
 
@@ -16,13 +15,13 @@ const CircularControlClass = {
 const CircularControl = (action, icon, color) => (
   <symbol viewBox="0 0 100 100" id={CircularControlClass[action]}>
     <circle cx="20" cy="20" r="20" className={`${color} hover`}></circle>
-    <text textAnchor="middle" x="20" y="30" fontSize="30px" className={`white fa`} dy="-0.25em">{icon}</text>
+    <text textAnchor="middle" x="20" y="30" fontSize="30px" className={`white material-icons`} dy="0.05em">{icon}</text>
   </symbol>
 )
 
-const AddNodeControl = CircularControl('add', '\uf067', 'pink')
+const AddNodeControl = CircularControl('add', 'share', 'pink')
 
-const VoteUpNodeControl = CircularControl('voteup', '\uf062', 'cyan')
+const VoteUpNodeControl = CircularControl('voteup', 'plus_one', 'cyan')
 
 
 const TextShape = (
@@ -80,11 +79,11 @@ export default {
   },
   ControlTypes: {
     add: {
-      shapeId: '#add-node-control',
+      shapeId: '#' + CircularControlClass.add,
       shape: AddNodeControl
     },
     voteup: {
-      shapeId: '#voteup-node-control',
+      shapeId: '#' + CircularControlClass.voteup,
       shape: VoteUpNodeControl
     }
   }
