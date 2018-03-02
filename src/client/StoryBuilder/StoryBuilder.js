@@ -11,6 +11,8 @@ import ReactDOM from 'react-dom'
 import GraphView from './components/GraphView'
 import GraphConfig from './graph-config.js' // Configures node/edge types
 
+import GraphBuilder from './utils/graph-builder'
+
 import {
   Panel,
   HotkeysTooltip
@@ -46,126 +48,8 @@ const EMPTY_GRAPH = {
   "edges": []
 }
 
-const nodeById = {}
-
-const edgeMatrix = {}
-const edgeMatrixInv = {}
-
-const visitGraph = (graph, callback) => {
-  const visited = {}
-  function visit(f, node, parent=null, index=0) {
-    if (!has(visited, node.id)) {
-      visited[node.id] = true
-
-      const stop = f(node, parent, index) === false
-
-      if (!stop) {
-        node.children.forEach((childId, i) =>
-          visit(f, nodeById[childId], node, i) )
-      }
-
-    }
-  }
-
-  return visit(callback, graph)
-}
-
-const markAccepted = (node) => {
-  node.data.is_accepted = true
-  visitGraph(node, (node, parent, index) => {
-    node.data.is_accepted = node.data.votes >= ACCEPTION_THRESHOLD
-    return node.data.is_accepted
-  })
-}
-
-const buildEdge = (source, target, data={}, type=TRANSITION_TYPE) => ({
-  isEdge: true,
-  source, target, type, data
-})
-
-const buildGraph = (story) => {
-
-  const graph = {
-    nodes: [],
-    edges : []
-  }
-
-  story.nodes.forEach((node) => {
-    const graphNode = {
-      id: node.id,
-      title: `Node ${node.id}`,
-      isNode: true,
-      x: 0,
-      y: 0,
-      type: 'text',
-      data: node || {},
-      children: [],
-      parent: null // not initialized
-    }
-
-    edgeMatrix[node.id] = edgeMatrix[node.id] || {}
-
-    graph.nodes.push(graphNode)
-    nodeById[graphNode.id] = graphNode
-
-    if (node.choices != null) {
-      const choiceEdges = compact(node.choices.map((choice) => {
-        if (choice.next_node_id != null) {
-          graphNode.children.push(choice.next_node_id)
-          const edge = buildEdge(node.id, choice.next_node_id, { text: choice.text, is_accepted: false })
-          edgeMatrix[node.id][choice.next_node_id] = edge
-          edgeMatrixInv[choice.next_node_id] = edgeMatrixInv[choice.next_node_id] || {}
-          edgeMatrixInv[choice.next_node_id][node.id] = edge
-          return edge
-        }
-      }))
-      graph.edges = graph.edges.concat(choiceEdges)
-    } else if (node.next_node_id != null) {
-      const edge = buildEdge(node.id, node.next_node_id, {is_accepted: false})
-      graph.edges.push(edge)
-      graphNode.children.push(node.next_node_id)
-      edgeMatrix[node.id][node.next_node_id] = edge
-      edgeMatrixInv[node.next_node_id] = edgeMatrixInv[node.next_node_id] || {}
-      edgeMatrixInv[node.next_node_id][node.id] = edge
-    }
-
-  })
 
 
-  function setupGraph(graph) {
-
-    graph.x = window.outerWidth*0.15
-    graph.y = window.outerHeight/2
-
-    visitGraph(graph, (node, parent, index) => {
-      if (parent) {
-        node.parent = parent.id
-        node.data.is_accepted = node.data.is_accepted && parent.data.is_accepted
-        edgeMatrix[parent.id][node.id].data.is_accepted = node.data.is_accepted
-
-        const nodeY = parent.y + 300
-        const nodeX = parent.children.length <= 1 || index == 0
-          ? parent.x
-          : parent.x + 800 * (index - parent.children.length/2)
-
-          console.log(parent)
-          console.log(index, parent.children.length, nodeX, nodeY)
-
-        node.x = nodeX
-        node.y = nodeY
-      }
-    })
-
-  }
-
-  setupGraph(nodeById[story.start_node_id])
-
-
-
-
-
-  return graph
-}
 
 
 export default class StoryBuilder extends Component {
@@ -180,34 +64,43 @@ export default class StoryBuilder extends Component {
 
     Story.get(0)
       .then((story) => {
-        const graph = buildGraph(story)
+        const graph = (new GraphBuilder()).build(story)
         console.log('Received', graph)
         this.setState({graph, selected : graph.nodes[0] })
       })
 
   }
 
-  // Helper to find the index of a given node
-  getNodeIndex(searchNode) {
-    return this.state.graph.nodes.findIndex((node)=>{
-      return node[NODE_KEY] === searchNode[NODE_KEY]
-    })
+  graph() {
+    return this.state.graph
   }
 
-  // Helper to find the index of a given edge
-  getEdgeIndex(searchEdge) {
-    return this.state.graph.edges.findIndex((edge)=>{
-      return edge.source === searchEdge.source &&
-        edge.target === searchEdge.target
-    })
+
+  selectElement(element={}) {
+    this.setState({selected: element});
   }
 
-  // Given a nodeKey, return the corresponding node
-  getViewNode(nodeKey) {
-    const searchNode = {};
-    searchNode[NODE_KEY] = nodeKey;
-    const i = this.getNodeIndex(searchNode);
-    return this.state.graph.nodes[i]
+  currentNode() {
+    return this.state.selected
+  }
+
+  previousNode() {
+    const previousNode = this.graph().getParent(this.currentNode())
+    if (previousNode) {
+      this.selectElement(previousNode)
+    } else {
+      console.error('No previous node')
+    }
+  }
+
+  nextNode(i=0) {
+    const currentNode = this.currentNode()
+    if (currentNode.hasChildren()) {
+      const children = this.graph().childrenOf(currentNode)
+      this.selectElement(children[0])
+    } else {
+      console.error('No next node')
+    }
   }
 
   /*
@@ -216,103 +109,40 @@ export default class StoryBuilder extends Component {
 
   // Called by 'drag' handler, etc..
   // to sync updates from D3 with the graph
-  onUpdateNode(viewNode) {
-    const graph = this.state.graph;
-    const i = this.getNodeIndex(viewNode);
-
-    graph.nodes[i] = viewNode;
-    this.setState({graph: graph});
-  }
-
-  selectNode(node={}) {
-    this.setState({selected: node});
-  }
-
-  getNode(id) {
-    return nodeById[new String(id)]
-  }
-
-  currentNode() {
-    return this.state.selected
-  }
-
-  previousNode() {
-    const previousNode = this.getNode(this.currentNode().parent)
-    if (previousNode) {
-      this.selectNode(previousNode)
-    } else {
-      console.error('No previous node')
-    }
-  }
-
-  nextNode(i=0) {
-    const children = this.currentNode().children
-    const nextNodeId = children[i]
-    const nextNode = this.getNode(nextNodeId)
-    if (nextNode) {
-      this.selectNode(nextNode)
-    } else {
-      console.error('No next node')
-    }
+  onUpdateNode(node) {
+    const graph = this.graph()
+    graph.updateNode(node)
+    this.setState({graph});
   }
 
   // Node 'mouseUp' handler
-  onSelectNode(viewNode) {
+  onSelectNode(node) {
     // Deselect events will send Null viewNode
-    if (viewNode) {
-      this.selectNode(viewNode)
+    if (node) {
+      this.selectElement(node)
     }
   }
 
   // Edge 'mouseUp' handler
-  onSelectEdge(viewEdge) {
-    this.setState({selected: viewEdge});
+  onSelectEdge(edge) {
+    this.selectElement(edge);
   }
 
   onVoteUpNode(node) {
     node.data.votes += 1
-
-    const parent_accepted = keys(edgeMatrixInv[node.id]).reduce((res, parentId) =>
-      res || nodeById[parentId].data.is_accepted, false )
-    if (parent_accepted && node.data.votes >= ACCEPTION_THRESHOLD) {
-      markAccepted(node)
+    if (this.getParent(node).isAccepted()) {
+      this.graph().accept(node,  ACCEPTION_THRESHOLD)
     }
-
   }
 
   // Updates the graph with a new node
   onAddNode (parent) {
-    const graph = this.state.graph;
-
-    // This is just an example - any sort of logic
-    // could be used here to determine node type
-    // There is also support for subtypes. (see 'sample' above)
-    // The subtype geometry will underlay the 'type' geometry for a node
-    const type = Math.random() < 0.25 ? CHOICE_TYPE : TEXT_TYPE;
-
-    const xRange = parent.children.reduce((range, c) =>
-        [Math.min(range[0], nodeById[c].x), Math.max(range[1], nodeById[c].x)]
-      , [parent.x, parent.x])
-
-    console.log('range', yRange)
-
-    const insertAbove = parent.children.length % 2 != 0
+    const graph = this.graph()
 
     const id = randomId()
-    const child = {
+    graph.addNode({
       id,
       title: `Node ${id}`,
-      isNode: true,
-      type,
-      y: parent.y + 300,
-      x: parent.children.length == 0
-        ? parent.x
-        : (
-          insertAbove
-            ? xRange[0] - 175
-            : xRange[1] + 175
-        ),
-      type: 'text',
       data: {
         "id" : id,
         "story_id": parent.data.story_id,
@@ -321,79 +151,67 @@ export default class StoryBuilder extends Component {
         "background_id": 0,
         "music_id": null,
         "text": ""
-      },
-      children: []
-    }
+      }
+    }, parent)
 
-    nodeById[child.id] = child
-    graph.nodes.push(child)
-    graph.edges.push(buildEdge(parent.id, child.id, { is_accepted: parent.is_accepted && child.is_accepted }))
-    parent.children.push(child.id)
+    const node = graph.getNode(id)
+
+    const insertAbove = parent.children.length % 2 != 0
+
+    const xRange = parent.children.reduce((range, c) =>
+    [Math.min(range[0], nodeById[c].x), Math.max(range[1], nodeById[c].x)]
+    , [parent.x, parent.x])
+
+    node.y = parent.y + 300,
+    node.x = parent.children.length == 0
+      ? parent.x
+      : insertAbove
+          ? xRange[0] - 175
+          : xRange[1] + 175
+
     this.setState({graph})
     console.log('Added new node')
   }
 
   // Deletes a node from the graph
   onDeleteNode(viewNode) {
-    const graph = this.state.graph;
-    const i = this.getNodeIndex(viewNode);
-    graph.nodes.splice(i, 1);
-
-    // Delete any connected edges
-    const newEdges = graph.edges.filter((edge, i)=>{
-      return  edge.source != viewNode[NODE_KEY] &&
-              edge.target != viewNode[NODE_KEY]
+    this.setState({
+      graph: this.graph(),
+      selected: {}
     })
-
-    graph.edges = newEdges;
-
-    this.setState({graph: graph, selected: {}});
   }
 
   // Creates a new node between two edges
-  onCreateEdge(sourceViewNode, targetViewNode) {
-    const graph = this.state.graph;
-
-    // This is just an example - any sort of logic
-    // could be used here to determine edge type
-    const type = sourceViewNode.type === CHOICE_TYPE ? SPECIAL_EDGE_TYPE : TRANSITION_TYPE;
-
-    const viewEdge = {
-      source: sourceViewNode[NODE_KEY],
-      target: targetViewNode[NODE_KEY],
-      type: type
-    }
-
+  onCreateEdge(sourceNode, targetNode) {
     // Only add the edge when the source node is not the same as the target
-    if (viewEdge.source !== viewEdge.target) {
-      graph.edges.push(viewEdge);
-      this.setState({graph: graph});
+    if (sourceNode !== targetNode) {
+      this.setState({
+        graph: this.graph().addEdge(sourceNode, targetNode)
+      })
     }
   }
 
   // Called when an edge is reattached to a different target.
-  onSwapEdge(sourceViewNode, targetViewNode, viewEdge) {
-    const graph = this.state.graph;
-    const i = this.getEdgeIndex(viewEdge);
-    const edge = JSON.parse(JSON.stringify(graph.edges[i]));
-
-    edge.source = sourceViewNode[NODE_KEY];
-    edge.target = targetViewNode[NODE_KEY];
-    graph.edges[i] = edge;
-
-    this.setState({graph: graph});
+  onSwapEdge(source, target, edge) {
+    const graph = this.graph()
+    graph.swapEdge(edge)
+    this.setState({graph});
   }
 
   // Called when an edge is deleted
-  onDeleteEdge(viewEdge) {
-    const graph = this.state.graph;
-    const i = this.getEdgeIndex(viewEdge);
-    graph.edges.splice(i, 1);
-    this.setState({graph: graph, selected: {}});
+  onDeleteEdge(edge) {
+    this.setState({
+      graph: this.graph().removeEdge(edge),
+      selected: {}
+    });
   }
 
   setGraphView(element) {
     this.graphView = element
+  }
+
+  getViewNode(nodeId) {
+    return this.graph().getNode(nodeId)
   }
 
   /*

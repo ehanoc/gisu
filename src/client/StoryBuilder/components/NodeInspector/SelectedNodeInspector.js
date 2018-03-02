@@ -47,6 +47,7 @@ export default class SelectedNodeInspector extends Component {
                   label="Story node text "
                   placeholder="Enter node's text"
                   rows="4"
+                  multiline
                   fullWidth
                   defaultValue={data.text}
                 />
