@@ -27,7 +27,6 @@ class MediaAPI extends BaseAPI {
   }
 
   get(id) {
-    console.log('Get media with ID', id, storedMedia[id])
     return storedMedia[id] ? storedMedia[id].url : ''
   }
 

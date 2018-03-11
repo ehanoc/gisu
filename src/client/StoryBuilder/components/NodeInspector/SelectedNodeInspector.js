@@ -16,6 +16,7 @@ import {
 } from 'material-ui'
 
 import NodeInspectorImage from './NodeInspectorImage'
+import NodeInspectorAudio from './NodeInspectorAudio'
 
 import classes from './NodeInspector.scss'
 
@@ -108,15 +109,43 @@ export default class SelectedNodeInspector extends Component {
                 />
               : null
           }
+
+          <NodeInspectorAudio
+            label="Music"
+            mediaId={ this.getField('music_id') }
+            onAudioSelected={ (mediaId) => this.setField('music_id', mediaId) }
+            onAudioRemoved ={ () => this.setField('music_id', null) }
+          />
+
+          <NodeInspectorAudio
+            label="SFX"
+            mediaId={ this.getField('sfx_id') }
+            onAudioSelected={ (mediaId) => this.setField('sfx_id', mediaId) }
+            onAudioRemoved ={ () => this.setField('sfx_id', null) }
+          />
         </CardContent>
 
 
 
         <CardActions>
-          <Button disabled={!modified} onClick={() => this.updateNode(onUpdateNode)}>Update</Button>
+          <Button
+            disabled={!modified}
+            onClick={() => this.updateNode(onUpdateNode)}
+            variant="raised"
+            color="primary">
+
+            Update
+          </Button>
           {
             selectedNode.isNode
-              ? <Button disabled={limitUpvote && upvoted} onClick={() => this.upvote(onUpdateNode)}>Vote Up</Button>
+              ? <Button
+                  disabled={limitUpvote && upvoted}
+                  onClick={() => this.upvote(onUpdateNode)}
+                  variant="raised"
+                  color="secondary">
+
+                  Vote Up
+                </Button>
               : null
           }
         </CardActions>
