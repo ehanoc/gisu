@@ -38,7 +38,7 @@ export default class SelectedNodeInspector extends Component {
   }
 
   getField(field) {
-    return this.state.data[field]
+    return this.state.data[field] ? this.state.data[field] : ''
   }
 
   setField(field, value) {
@@ -70,10 +70,23 @@ export default class SelectedNodeInspector extends Component {
 
     return (
       <Card>
-        <CardHeader
-          title={selectedNode.title}
-          subtitle={capitalize(selectedNode.type)}
-        />
+        <CardContent>
+          {
+            data.text
+              ? <TextField
+                  type="text"
+                  style={{width: '100%'}}
+                  label="Node Title"
+                  placeholder="Enter node's title"
+                  inputProps = { {style : { fontSize: 24 }} }
+                  fullWidth
+                  value={this.getField('title')}
+                  onChange={this.onFieldChange.bind(this, 'title')}
+                />
+              : null
+          }
+        </CardContent>
+
 
         <CardMedia
           className={classes.NodeInspectorMedia}

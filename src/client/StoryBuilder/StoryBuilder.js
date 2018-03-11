@@ -155,8 +155,8 @@ export default class StoryBuilder extends Component {
     const id = randomId()
     graph.addNode({
       id,
-      title: `Node ${id}`,
       data: {
+        "title": `Node ${id}`,
         "id" : id,
         "story_id": parent.data.story_id,
         "votes": 0,
