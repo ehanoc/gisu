@@ -15,6 +15,8 @@ import {
   Button
 } from 'material-ui'
 
+import NodeInspectorImage from './NodeInspectorImage'
+
 import classes from './NodeInspector.scss'
 
 export default class SelectedNodeInspector extends Component {
@@ -86,18 +88,13 @@ export default class SelectedNodeInspector extends Component {
               : null
           }
         </CardContent>
-
-
-        <CardMedia
-          className={classes.NodeInspectorMedia}
+        <NodeInspectorImage
           image={
             selectedNode.isNode
             ? "http://via.placeholder.com/350x150?text=No%20Background%20image"
             : "http://via.placeholder.com/350x150?text=No%20Background%20image"
           }
         />
-
-
         <CardContent>
           {
             data.text
