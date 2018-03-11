@@ -2,6 +2,10 @@ import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
 import classNames from 'classnames'
 
+import {isInteger} from 'lodash'
+
+import {Media} from '../../../api'
+
 import SelectButtonIcon from 'material-ui-icons/Add'
 
 import {
@@ -16,36 +20,30 @@ export default class NodeInspectorImage extends Component {
   constructor(props) {
     super(props)
     this.fileInput = null
-    this.state = {
-      imageFileSrc : ''
-    }
   }
 
   uploadFile() {
     this.fileInput.click();
   }
 
-  fileUploaded(file) {
-    if (file) { 
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        this.setState({ imageFileSrc : event.target.result })
-      }
-      reader.readAsDataURL(file)
+  fileSelected(file) {
+    if (file) {
+      Media.upload(file)
+        .then((data) => data.id)
+        .then(this.props.onImageSelected)
     }
   }
 
   render() {
 
-    const { image } = this.props
-    const { imageFileSrc } = this.state
+    const { imageId } = this.props
 
-
+    const image = isInteger(imageId) ? Media.get(imageId) : 'http://via.placeholder.com/480x320?text=No%20Image'
 
     return (
       <div className={classes.NodeInspectorImage} >
         <div className={classes.NodeInspectorImageContent} >
-          <img src={imageFileSrc ? imageFileSrc : image } />
+          <img src={image} />
         </div>
 
         <div className={classes.NodeInspectorImageSelectButton}>
@@ -55,7 +53,7 @@ export default class NodeInspectorImage extends Component {
                    type="file"
                    style={ {display: 'none'} }
                    accept=".png, .jpg, .jpeg"
-                   onChange={() => this.fileUploaded(this.fileInput.files[0])}
+                   onChange={() => this.fileSelected(this.fileInput.files[0])}
             />
 
             <SelectButtonIcon classes={{root: classes.NodeInspectorImageSelectButtonIcon}}/>

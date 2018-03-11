@@ -40,10 +40,11 @@ export default class SelectedNodeInspector extends Component {
   }
 
   getField(field) {
-    return this.state.data[field] ? this.state.data[field] : ''
+    return this.state.data[field] !== null ? this.state.data[field] : ''
   }
 
   setField(field, value) {
+    console.log('Set field', field, value)
     this.setState({ data: { ...this.state.data, [field]:value }, modified: true })
   }
 
@@ -65,7 +66,6 @@ export default class SelectedNodeInspector extends Component {
   render() {
     const { selectedNode, onUpdateNode, limitUpvote=false } = this.props
     this._setNode(selectedNode)
-
 
     const { modified, upvoted } = this.state
     const data = selectedNode.data || {}
@@ -89,11 +89,8 @@ export default class SelectedNodeInspector extends Component {
           }
         </CardContent>
         <NodeInspectorImage
-          image={
-            selectedNode.isNode
-            ? "http://via.placeholder.com/350x150?text=No%20Background%20image"
-            : "http://via.placeholder.com/350x150?text=No%20Background%20image"
-          }
+          imageId={this.getField('background_id')}
+          onImageSelected={ (mediaId) => this.setField('background_id', mediaId) }
         />
         <CardContent>
           {

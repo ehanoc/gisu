@@ -1,9 +1,7 @@
 // API for prototype version
 
-import NodeAPI from './Node'
-import StoryAPI from './Story'
+import { default as Node } from './Node'
+import { default as Story } from './Story'
+import { default as Media } from './Media'
 
-export const Node = NodeAPI
-export const Story = StoryAPI
-
-export default { Node, Story }
+export default { Node, Story, Media }
