@@ -1,4 +1,7 @@
+// Fetch polyill
 import 'whatwg-fetch'
+
+
 import { query, Query } from './utils'
 import { extend, isString, last, camelCase, snakeCase, omit } from 'lodash'
 
