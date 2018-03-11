@@ -1,35 +1,24 @@
 import http from 'http'
 import express from 'express'
-import cors from 'cors'
-import morgan from 'morgan'
-import bodyParser from 'body-parser'
 import config from './config.json'
+import configure from './configure'
 
 import api from './api'
 
+// URL used to get bundles (webpack dev server)
 const bundleUrl = 'http://localhost:8081/bundles'
 
+// App creation
 const app = express()
 app.server = http.createServer(app)
 
-// logger
-app.use(morgan('dev'))
+// Configure application
+configure(app)
 
-// 3rd party middleware
-app.use(cors({
-	exposedHeaders: config.corsHeaders
-}))
-
-app.use(bodyParser.json({
-	limit : config.bodyLimit
-}))
-
-app.set('view engine', 'pug')
-
-app.use(express.static(`${__dirname}/static`))
-
+// Setup API routes
 app.use(api)
 
+// Main route for application
 app.get('/', (req, res) => {
 	res.render('index.pug', {
 		bundleUrl,
@@ -37,7 +26,7 @@ app.get('/', (req, res) => {
 	})
 })
 
-
+// Start server
 app.server.listen(process.env.PORT || config.port, () => {
   console.log(`Started on port ${app.server.address().port}`)
 })

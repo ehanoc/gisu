@@ -1,4 +1,8 @@
 
+
+/**
+ * Transform a object into a style string
+ */
 export const styleToString = (style) =>
   Object.keys(style)
     .map((k) => {

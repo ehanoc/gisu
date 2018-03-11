@@ -1,19 +1,20 @@
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
 import classNames from 'classnames'
-
 import {isInteger, last} from 'lodash'
-
 import {Media} from '../../../api'
-
 import SelectButtonIcon from 'material-ui-icons/Add'
-
 import {
   Button, Typography
 } from 'material-ui'
-
 import classes from './NodeInspector.scss'
 
+
+/**
+ * Node Inspector Audio
+ *
+ * Upload/remove a node's audio content
+ */
 
 export default class NodeInspectorAudio extends Component {
 

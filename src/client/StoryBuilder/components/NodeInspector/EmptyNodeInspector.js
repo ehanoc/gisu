@@ -10,6 +10,12 @@ import {
 import classes from './NodeInspector.scss'
 
 
+/**
+ * Empty Node inspector
+ *
+ * Rendered when there is no node selected
+ */
+
 export default class EmptyNodeInspector extends Component {
   render() {
     return (

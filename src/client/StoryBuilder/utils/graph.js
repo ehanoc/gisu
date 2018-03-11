@@ -1,6 +1,16 @@
 import {extend, has, values, isObject} from 'lodash'
 
 
+/**
+ * Helper classes to modelate a Graph
+ * Each class support operations over the
+ * graph and it's elements.
+ */
+
+
+/**
+ * Graph Node
+ */
 export class GraphNode {
 
   constructor(attributes) {
@@ -60,6 +70,9 @@ export class GraphNode {
 }
 
 
+/**
+ * Graph Edge
+ */
 export class GraphEdge {
 
   constructor(sourceId, targetId, data={}, type='transition') {
@@ -91,6 +104,9 @@ export class GraphEdge {
 }
 
 
+/**
+ * Graph
+ */
 export default class Graph {
 
   constructor() {

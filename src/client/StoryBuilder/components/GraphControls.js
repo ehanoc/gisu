@@ -8,6 +8,15 @@ const FaInfoCircle = require('react-icons/lib/fa/info-circle');
 
 
 
+/**
+ * Graph Controls
+ *
+ * Display graph controls.
+ *
+ * Part of react-digraph component but imported here for customization
+ * https://github.com/uber/react-digraph
+ */
+
 const steps = 100; // Slider steps
 
 

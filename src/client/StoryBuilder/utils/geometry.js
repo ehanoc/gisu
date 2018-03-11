@@ -1,11 +1,23 @@
 import { clone } from 'lodash'
 
+/**
+ * Geometry Utilities
+ */
+
+
+
 const min = Math.min
 const max = Math.max
 
+
+/**
+ * RectGeometry class
+ *
+ * Operation over rectangles
+ */
 class RectGeometry {
 
-
+  // Calculates the union between two rectangles
   union(rect1, rect2) {
     var newRect = {
       x: min(rect2.x, rect1.x),
@@ -22,6 +34,7 @@ class RectGeometry {
     return newRect
   }
 
+  // Scales a rectangle
   scale(rect, scale, center=true) {
     var newWidth  = rect.width * scale
     var newHeight = rect.height * scale

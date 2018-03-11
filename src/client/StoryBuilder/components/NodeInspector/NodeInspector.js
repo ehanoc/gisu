@@ -11,6 +11,13 @@ import SelectedNodeInspector from './SelectedNodeInspector'
 import classes from './NodeInspector.scss'
 
 
+/**
+ * Node Inspector
+ *
+ * Set of fields and operations to handle node data
+ */
+
+
 export default class extends Component {
 
   constructor(props) {

@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-
 import {
   Card, CardHeader, CardActions,
   CardMedia, CardTitle, CardContent,
@@ -8,9 +7,14 @@ import {
   List, ListItem
 } from 'material-ui';
 
-
 import classes from './HotkeysTooltip.scss'
 
+
+/**
+ * Hotkeys tooltips
+ *
+ * Show tooltips about graph edition
+ */
 
 export default class extends Component {
 

@@ -1,5 +1,14 @@
 import Graph from './graph'
 
+
+/**
+ *
+ * Graph Builder
+ *
+ * Builds a graph from the Story.
+ *
+ */
+
 export default class GraphBuilder {
 
 

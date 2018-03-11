@@ -2,6 +2,10 @@ import grey from 'material-ui/colors/grey';
 import green from 'material-ui/colors/green';
 import blue from 'material-ui/colors/blue';
 
+/**
+ * Color definitions
+ */
+
 export default {
 
   primary: blue[500],

@@ -1,17 +1,20 @@
 import React, {Component} from 'react'
-
 import classnames from 'classnames'
-
 import classes from './Panel.scss'
-
 import {
   NodeInspector,
   NodeNavigation
 } from '../'
-
 import {
   Paper
 } from 'material-ui'
+
+
+/**
+ * Panel class
+ *
+ * It's a pane with node inspector and navigation controls
+ */
 
 export default ({selectedNode, onPreviousNode, onNextNode, onUpdateNode, className}) => {
   const navigationBackProps = {

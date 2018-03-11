@@ -1,63 +1,42 @@
-/*
-  Example usage of GraphView component
-*/
-import {compact, random, has, keys} from 'lodash'
-
-const randomId = () => random(100, 99999)
-
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
-
 import GraphView from './components/GraphView'
-import GraphConfig from './graph-config.js' // Configures node/edge types
-
+import GraphConfig from './graph-definitions' // Configures node/edge types
 import GraphBuilder from './utils/graph-builder'
-
 import classes from './StoryBuilder.scss'
-
 import {
   Panel,
   HotkeysTooltip
 } from './components'
-
 import {Story, Node} from '../api'
+import {compact, random, has, keys} from 'lodash'
 
-const styles = {
-  graph: {
-    height: '100%',
-    width: '100%'
-  }
-};
+// Obtain random IDs for new nodes
+const randomId = () => random(100, 99999)
 
-const NODE_KEY = "id" // Key used to identify nodes
-
+// Acception threshold defines how many votes a node needs
+// to be accepted.
 const ACCEPTION_THRESHOLD = 1
 
-// These keys are arbitrary (but must match the config)
-// However, GraphView renders text differently for empty types
-// so this has to be passed in if that behavior is desired.
-const TEXT_TYPE = "text"; // Empty node type
-const CHOICE_TYPE = "choice";
-const SPECIAL_CHILD_SUBTYPE = "specialChild";
-const TRANSITION_TYPE = "transition";
-const SPECIAL_EDGE_TYPE = "specialEdge";
 
-// NOTE: Edges must have 'source' & 'target' attributes
-// In a more realistic use case, the graph would probably originate
-// elsewhere in the App or be generated from some other state upstream of this component.
-const EMPTY_GRAPH = {
-  "nodes": [],
-  "edges": []
-}
-
-
-
+/**
+ *
+ * Story Builder
+ *
+ * Application to build stories.
+ *
+ */
 
 
 export default class StoryBuilder extends Component {
 
   constructor(props) {
     super(props);
+
+    const EMPTY_GRAPH = {
+      "nodes": [],
+      "edges": []
+    }
 
     this.state = {
       graph: EMPTY_GRAPH,
@@ -73,20 +52,31 @@ export default class StoryBuilder extends Component {
 
   }
 
+  /**
+   * Returns current graph instance
+   */
   graph() {
     return this.state.graph
   }
 
-
+  /**
+   * Performs selection of a given element
+   */
   selectElement(element={}) {
     this.setState({selected: element})
     this.graphView.centerOn(element);
   }
 
+  /**
+   * Returns current node
+   */
   currentNode() {
     return this.state.selected
   }
 
+  /**
+   * Performs selection of a previous node in the graph
+   */
   previousNode() {
     const previousNode = this.graph().getParent(this.currentNode())
     if (previousNode) {
@@ -96,6 +86,9 @@ export default class StoryBuilder extends Component {
     }
   }
 
+  /**
+   * Performs selection of a next node in the graph
+   */
   nextNode(i=0) {
     const currentNode = this.currentNode()
     if (currentNode.hasChildren()) {
@@ -106,6 +99,9 @@ export default class StoryBuilder extends Component {
     }
   }
 
+  /**
+   * Updates data related to a story node.
+   */
   updateStoryNode(data) {
     Node.update(data.id, data)
     var node = this.graph().getNode(data.id)
@@ -114,44 +110,72 @@ export default class StoryBuilder extends Component {
     this.forceUpdate()
   }
 
+  /**
+   * Performs acception calculation over a given node
+   */
   calculateAcception(node) {
       this.graph().accept(node,  ACCEPTION_THRESHOLD)
   }
 
-  /*
-   * Handlers/Interaction
+  /**
+   * Set Graph View element
    */
+  setGraphView(element) {
+    this.graphView = element
+  }
 
-  // Called by 'drag' handler, etc..
-  // to sync updates from D3 with the graph
+  /**
+   * Get node by id
+   */
+  getViewNode(nodeId) {
+    return this.graph().getNode(nodeId)
+  }
+
+
+
+  //----------- Handlers/Interaction
+
+
+  /**
+   * Updates a node state in the graph
+   */
   onUpdateNode(node) {
     const graph = this.graph()
     graph.updateNode(node)
     this.setState({graph});
   }
 
-  // Node 'mouseUp' handler
+  /**
+   * Handles node selection
+   */
   onSelectNode(node) {
-    // Deselect events will send Null viewNode
     if (node) {
       this.selectElement(node)
     }
   }
 
-  // Edge 'mouseUp' handler
+  /**
+   * Handles edge selection
+   */
   onSelectEdge(edge) {
     this.selectElement(edge);
   }
 
+  /**
+   * Handles voteup
+   */
   onVoteUpNode(node) {
     node.data.votes += 1
     this.calculateAcception(node)
   }
 
-  // Updates the graph with a new node
+  /**
+   * Add new child node for a given parent
+   */
   onAddNode (parent) {
     const graph = this.graph()
 
+    // Create new node
     const id = randomId()
     graph.addNode({
       id,
@@ -169,6 +193,8 @@ export default class StoryBuilder extends Component {
 
     const node = graph.getNode(id)
 
+
+    // Calculate position
     const insertAbove = parent.children.length % 2 != 0
 
     const xRange = parent.children.reduce((range, c) =>
@@ -182,11 +208,14 @@ export default class StoryBuilder extends Component {
           ? xRange[0] - 175
           : xRange[1] + 175
 
+    // Update graph
     this.setState({graph})
     console.log('Added new node')
   }
 
-  // Deletes a node from the graph
+  /**
+   * Delete node from the graph
+   */
   onDeleteNode(viewNode) {
     this.setState({
       graph: this.graph(),
@@ -194,7 +223,9 @@ export default class StoryBuilder extends Component {
     })
   }
 
-  // Creates a new node between two edges
+  /**
+   * Create a new edge between two nodes
+   */
   onCreateEdge(sourceNode, targetNode) {
     // Only add the edge when the source node is not the same as the target
     if (sourceNode !== targetNode) {
@@ -204,27 +235,23 @@ export default class StoryBuilder extends Component {
     }
   }
 
-  // Called when an edge is reattached to a different target.
+  /**
+   * Handles edges being re-attached to another target
+   */
   onSwapEdge(source, target, edge) {
     const graph = this.graph()
     graph.swapEdge(edge)
     this.setState({graph});
   }
 
-  // Called when an edge is deleted
+  /**
+   * Handles edge deletion
+   */
   onDeleteEdge(edge) {
     this.setState({
       graph: this.graph().removeEdge(edge),
       selected: {}
     });
-  }
-
-  setGraphView(element) {
-    this.graphView = element
-  }
-
-  getViewNode(nodeId) {
-    return this.graph().getNode(nodeId)
   }
 
   /*
@@ -245,7 +272,7 @@ export default class StoryBuilder extends Component {
 
 
     return (
-      <div id='graph' style={styles.graph}>
+      <div id='graph' style={{ graph: { height: '100%', width: '100%' } }}>
 
 
         <Panel
@@ -259,8 +286,8 @@ export default class StoryBuilder extends Component {
         <GraphView  ref={this.setGraphView.bind(this)}
                     className={classes.GraphView}
                     graphControls={false}
-                    nodeKey={NODE_KEY}
-                    emptyType={TEXT_TYPE}
+                    nodeKey="id"
+                    emptyType="text"
                     nodes={nodes}
                     edges={edges}
                     selected={selected}

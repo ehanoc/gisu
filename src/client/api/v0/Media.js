@@ -1,9 +1,15 @@
 import BaseAPI from './base-api'
 
 
+/**
+ * Media API
+ *
+ * Manage media resources
+ * Right now it is a mockup API.
+ */
+
 const storedMedia = []
 
-// Mockuped Media API
 class MediaAPI extends BaseAPI {
 
   upload(file) {

@@ -1,23 +1,26 @@
-import React, {
-  Component
-} from 'react'
+import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-
 import {styleToString} from '../utils/'
-
 import {keys} from 'lodash'
-
 import Geometry from '../utils/geometry'
-
 import * as d3 from 'd3'
 window.d3 = d3
 import {moveToBack} from '../utils/d3'
 import Radium from 'radium'
 import GraphControls from './GraphControls.js'
-
 import color from '../utils/color'
 
 
+/**
+ * Graph Viewer
+ *
+ * Show and manipulate a graph.
+ *
+ * Originally, it is  react-digraph component but imported here for customization
+ * https://github.com/uber/react-digraph
+ */
+
+// Styles definition
 function makeStyles(
   primary='dodgerblue', light='#ccc', dark='black',
   background='#F9F9F9',

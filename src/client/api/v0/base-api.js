@@ -1,17 +1,15 @@
 // Fetch polyill
 import 'whatwg-fetch'
 
-
 import { query, Query } from './utils'
 import { extend, isString, last, camelCase, snakeCase, omit } from 'lodash'
 
 const ENDPOINT = `${window.location.protocol}//${window.location.host}/api/v0`
 
 
-
 /**
  *
- * API Wrapper
+ * BASE API Wrapper
  *
  * Each method performing and API call will return a Promise.
  *

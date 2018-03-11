@@ -1,5 +1,13 @@
 import BaseAPI from './base-api'
 
+/**
+ * Node API
+ *
+ * Manage Node resources
+ *
+ * Not implemented yet.
+ */
+
 class NodeAPI extends BaseAPI {
 
   upvote(nodeId) {

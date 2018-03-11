@@ -9,6 +9,12 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import StoryBuilder from './StoryBuilder/'
 import withRoot from './withRoot'
 
+/**
+ * Application
+ *
+ * This component will decide what view to render.
+ */
+
 const App = () => (
   <StoryBuilder/>
 )

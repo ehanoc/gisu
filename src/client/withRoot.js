@@ -4,6 +4,14 @@ import color from './StoryBuilder/utils/color'
 import green from 'material-ui/colors/green';
 import Reboot from 'material-ui/Reboot'
 
+
+/**
+ * withRoot
+ *
+ * High-order component to apply Material UI theme
+ */
+
+
 // A theme with custom primary and secondary color.
 // It's optional.
 const theme = createMuiTheme({

@@ -1,10 +1,7 @@
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
-
 import {identity as id, pick} from 'lodash'
-
 import {capitalize} from 'lodash'
-
 import {
   Card,
   CardHeader,
@@ -14,11 +11,15 @@ import {
   CardContent,
   Button
 } from 'material-ui'
-
 import NodeInspectorImage from './NodeInspectorImage'
 import NodeInspectorAudio from './NodeInspectorAudio'
-
 import classes from './NodeInspector.scss'
+
+/**
+ * Selected Node Inspector
+ *
+ * Show all data from a node, allows to update and vote up
+ */
 
 export default class SelectedNodeInspector extends Component {
 

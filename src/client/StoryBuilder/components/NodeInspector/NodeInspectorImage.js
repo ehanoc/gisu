@@ -1,19 +1,18 @@
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
 import classNames from 'classnames'
-
 import {isInteger} from 'lodash'
-
 import {Media} from '../../../api'
-
 import SelectButtonIcon from 'material-ui-icons/Add'
-
-import {
-
-} from 'material-ui'
-
+import {} from 'material-ui'
 import classes from './NodeInspector.scss'
 
+
+/**
+ * Node Inspector Image
+ *
+ * Upload/remove a node's image content
+ */
 
 export default class NodeInspectorImage extends Component {
 
