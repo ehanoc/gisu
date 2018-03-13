@@ -5,7 +5,7 @@ import bodyParser from 'body-parser'
 import config from './config.json'
 
 
-exports default (app) => {
+export default (app) => {
   // Setup logger
   app.use(morgan('dev'))
 
