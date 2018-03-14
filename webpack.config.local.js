@@ -8,6 +8,8 @@ const config = require('./webpack.config.js')
 const bundleUrl = 'http://localhost:8081/bundles/'
 
 const localConfig = merge({}, config, {
+  mode: 'development',
+
   devtool: 'cheap-module-eval-source-map',
 
   devServer: {
@@ -43,7 +45,6 @@ const localConfig = merge({}, config, {
     app: [
       'react-hot-loader/patch',
       'babel-polyfill',
-      //'webpack-hot-middleware/client?path=http://localhost:8081',
       'webpack-dev-server/client?http://localhost:8081', // WebpackDevServer host and port
       'webpack/hot/only-dev-server', // "only" prevents reload on syntax errors
     ].concat(config.entry.app)

@@ -62,13 +62,7 @@ module.exports = {
               options: {
                 babelrc: false,
                 presets: [
-                  [
-                    "latest", {
-                      "es2015": {
-                        "modules": false
-                      }
-                    }
-                  ],
+                  'env',
                   "stage-2",
                   "react"
                 ],
@@ -102,16 +96,30 @@ module.exports = {
         }
       ]
     },
+
     resolve: {
         modules: ["node_modules"]
     },
+
+    optimization : {
+      minimize: false,
+      removeEmptyChunks: true,
+      mergeDuplicateChunks: true,
+      occurrenceOrder: true,
+      splitChunks : {
+        cacheGroups: {
+          default: false,
+          commons: {
+            test: /node_modules/,
+            name: "vendor",
+            chunks: "initial",
+            minSize: 1
+          }
+        }
+      }
+    },
+
     plugins: [
-      new webpack.optimize.CommonsChunkPlugin({
-        name: 'vendor'
-      }),
-      new webpack.optimize.OccurrenceOrderPlugin(),
-      new webpack.optimize.ModuleConcatenationPlugin(),
-      //new MinifyPlugin(),
       extractSass,
       new webpack.DefinePlugin({
         BUILD_DATE: JSON.stringify(new Date()),

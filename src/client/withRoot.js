@@ -2,7 +2,7 @@ import React from 'react'
 import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles'
 import color from './StoryBuilder/utils/color'
 import green from 'material-ui/colors/green';
-import Reboot from 'material-ui/Reboot'
+import CssBaseline from 'material-ui/CssBaseline'
 
 
 /**
@@ -36,7 +36,7 @@ function withRoot(Component) {
     return (
       <MuiThemeProvider theme={theme}>
         {/* Reboot kickstart an elegant, consistent, and simple baseline to build upon. */}
-        <Reboot />
+        <CssBaseline />
         <Component {...props} />
       </MuiThemeProvider>
     )

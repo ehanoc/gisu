@@ -272,7 +272,7 @@ export default class StoryBuilder extends Component {
 
 
     return (
-      <div id='graph' style={{ graph: { height: '100%', width: '100%' } }}>
+      <div id='graph' style={{ height: '100%', width: '100%' } }>
 
 
         <Panel

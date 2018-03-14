@@ -2,12 +2,6 @@ import React, {Component} from 'react';
 import Radium from 'radium';
 import PropTypes from 'prop-types';
 
-// Only old-style imports for react-icons seem to work with gulp
-const FaExpand = require('react-icons/lib/fa/expand');
-const FaInfoCircle = require('react-icons/lib/fa/info-circle');
-
-
-
 /**
  * Graph Controls
  *
@@ -113,9 +107,11 @@ class GraphControls extends Component {
             step="1"/>
           +
         </div>
+
         <button style={styles.button} onMouseDown={this.props.zoomToFit}>
-          <FaExpand/>
+          { /* Icon needed*/ }
         </button>
+
       </div>
     );
   }
