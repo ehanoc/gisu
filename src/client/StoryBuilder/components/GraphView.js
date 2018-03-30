@@ -148,6 +148,44 @@ function getDistance(pt1, pt2) {
 }
 
 
+function wrap(text, width, { textOffset=0, lineHeight= 1.0, maxLines=false } ) {
+  // textOffset and lineHeight are in em units.
+
+  var words = text.text().split(/\s+/).reverse(),
+      word,
+      line = [],
+      lineNumber = 1,
+      y = text.attr("y"),
+      dy = textOffset,
+      tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", (lineNumber * lineHeight + dy) + "em")
+
+  while (word = words.pop()) {
+
+    line.push(word)
+    tspan.text(line.join(" "))
+    if (tspan.node().getComputedTextLength() > width) {
+      lineNumber += 1
+      line.pop()
+      if (lineNumber > maxLines && words.length > 0) {
+        tspan.text(line.join(" ").replace(/[;,\.\s]+$/, '') + '...' )
+      } else {
+        tspan.text(line.join(" "))
+      }
+
+      if (maxLines && lineNumber > maxLines) {
+        break;
+      }
+
+      line = [word]
+      tspan = text.append("tspan").attr("x", 0).attr("dy", lineHeight + "em").text(word)
+    }
+
+  }
+
+  // return line number count
+  return lineNumber
+}
+
 
 class StoryGraphView extends Component {
 
@@ -764,11 +802,14 @@ class StoryGraphView extends Component {
     let d3Node = d3.select(domNode)
     let title = d.data.title ? d.data.title : 'No title'
 
-    let titleText = title.length <= this.props.maxTitleChars ? title :
-      `${title.substring(0, this.props.maxTitleChars)}...`
+    let titleText = this.props.shrinkText ? (
+        title.length <= this.props.maxTitleChars
+          ? title
+          :`${title.substring(0, this.props.maxTitleChars)}...`
+      ) : title
 
     let lineOffset = 18
-    let textOffset = d.type === this.props.emptyType ? -9 : 18
+    let textOffset = d.type === this.props.emptyType ? -18 : 18
 
     d3Node.selectAll("text").remove()
 
@@ -778,18 +819,26 @@ class StoryGraphView extends Component {
     let el = d3Node.append('text')
       .attr('text-anchor', 'middle')
       .attr('style', style)
-      .attr('dy', textOffset)
 
-    el.append('tspan')
-      .attr('opacity', 0.5)
-      .text(typeText)
 
+
+
+    var lines = 0;
     if (title) {
       // User defined/secondary text
-      el.append('tspan').text(titleText).attr('x', 0).attr('dy', lineOffset)
-
-      el.append('title').text(title)
+      //el.append('tspan').text(titleText).attr('x', 0).attr('dy', lineOffset)
+      el.text(titleText)
+      lines = wrap(el, 110, { maxLines: 4, lineHeight: 1.1 })
+      console.log('Obtained lines', lines)
+      el.select(':first-child').attr('x', 0)
     }
+
+    el.insert('tspan', ':first-child')
+      .attr('opacity', 0.5)
+      .attr('dy', (lines * -0.4) + 'em')
+      .text(typeText)
+
+    el.append('title').text(title)
   }
 
   // Renders 'edges' into entities element
@@ -992,6 +1041,7 @@ StoryGraphView.propTypes = {
   zoomDur: PropTypes.number, // ms
   graphControls: PropTypes.bool,
   dragEnabled: PropTypes.bool,
+  shrinkText : PropTypes.bool
 }
 
 StoryGraphView.defaultProps = {
@@ -1015,6 +1065,7 @@ StoryGraphView.defaultProps = {
   zoomDur: 750,
   graphControls: true,
   dragEnabled: false,
+  shrinkText: false,
   controlTypes: {},
   renderEdge: (graphView, domNode, datum, index, elements )=>{
 
