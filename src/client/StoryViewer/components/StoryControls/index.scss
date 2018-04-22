@@ -1,0 +1,37 @@
+@import '../../global.scss';
+
+.Controls {
+  position: absolute;
+  bottom: rem(20);
+  right: rem(20);
+  z-index: 1;
+  display: flex;
+
+  & > * {
+    margin-left: rem(6);
+  }
+}
+
+.Button {
+  $button-color: $color-white;
+
+  background-color: $button-color;
+  width: rem(40);
+  height: rem(40);
+  border-radius: 100%;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+
+  color: $color-black;
+
+  &:hover {
+    background-color: darken($button-color, 50%);
+    color: $color-white;
+    cursor: pointer;
+  }
+}
+
+.ButtonIcon {
+  font-size: rem(22);
+}

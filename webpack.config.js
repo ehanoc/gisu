@@ -67,7 +67,10 @@ module.exports = {
                   "react"
                 ],
                 plugins: [
-                  ["react-css-modules", { "context": "./src/client" }],
+                  ["react-css-modules", {
+                    "context": "./src/client",
+                    "webpackHotModuleReloading" : true
+                  }],
                   "transform-object-assign",
                   "transform-react-constant-elements"
                 ]
@@ -86,13 +89,13 @@ module.exports = {
         },
         { // sass / scss loader for webpack
           test: /\.(css|sass|scss)$/,
-          use: extractSass.extract({
+//          use: extractSass.extract({
             use: [
-              //{ loader: 'style-loader'},
+              { loader: 'style-loader'},
               { loader: 'css-loader?importLoader=1&modules&localIdentName=GS-[name]__[local]'},
               { loader: 'sass-loader', options: { includePaths } }
             ]
-          })
+  //        })
         }
       ]
     },

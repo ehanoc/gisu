@@ -1,0 +1,67 @@
+@import '../../global.scss';
+
+@mixin SlidePanel {
+  font-family: roboto;
+  font-size: rem(16);
+  color: white;
+  background-color: rgba($color-black, 0.8);
+  z-index: 1;
+}
+
+.Slide {
+  position: absolute;
+  top: 0; right: 0; left: 0; bottom: 0;
+  z-index: 0;
+}
+
+.Background {
+  position: absolute;
+  top: 0; right: 0; left: 0; bottom: 0;
+  z-index: 0;
+}
+
+.BackgroundImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.Title {
+  @include SlidePanel;
+
+  position: absolute;
+  top: rem(40); left: rem(40);
+  z-index: 1;
+
+  min-width: 30%;
+  max-width: 40%;
+
+  padding: rem(20) rem(30);
+}
+
+.Dialog {
+  @include SlidePanel;
+  position: absolute;
+  bottom: rem(40); left: rem(40); right: rem(40);
+  z-index: 1;
+
+  padding: rem(30);
+}
+
+.DialogOptions {
+  display: inline-block;
+  margin: rem(10) rem(0);
+  padding-left: rem(35);
+
+  list-style: none;
+}
+
+.DialogOption {
+  padding: rem(0) rem(5);
+  &:hover {
+    background-color: $color-white;
+    color: $color-black;
+    cursor: pointer;
+  }
+}

@@ -1,0 +1,13 @@
+
+$color-black: #000000;
+$color-white: #FFFFFF;
+
+$typography-base-size: 12;
+
+html, body {
+  font-size: $typography-base-size;
+}
+
+@function rem($pixel-value) {
+  @return ($pixel-value / $typography-base-size) * 1rem;
+}

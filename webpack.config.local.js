@@ -4,8 +4,11 @@ const BundleTracker = require('webpack-bundle-tracker')
 const webpack = require('webpack')
 const merge = require('lodash').merge
 const config = require('./webpack.config.js')
+const BrowserSyncPlugin = require('browser-sync-webpack-plugin')
+
 
 const bundleUrl = 'http://localhost:8081/bundles/'
+const serverUrl = 'http://localhost:8080'
 
 const localConfig = merge({}, config, {
   mode: 'development',
@@ -73,6 +76,15 @@ const localConfig = merge({}, config, {
     new webpack.NoEmitOnErrorsPlugin(),
     new BundleTracker({filename: './webpack-stats.json'}),
 
+    /*
+    new BrowserSyncPlugin({
+      host: 'localhost',
+      port: 3000,
+      proxy: serverUrl
+    }, {
+      injectCss: true
+    })
+    */
   ])
 
 })
