@@ -4,10 +4,10 @@ import classes from './index.scss'
 
 import Button from './Button'
 
-const StoryControls = () => (
+const StoryControls = ({ volumeEnabled, onVolumeToggle, onNextSlide }) => (
   <div className={classes.Controls}>
-    <Button icon="volume_up"></Button>
-    <Button icon="play_arrow"></Button>
+    <Button icon={volumeEnabled ? "volume_up" : "volume_off"} onClick={onVolumeToggle}></Button>
+    <Button icon="play_arrow" onClick={onNextSlide}></Button>
   </div>
 )
 

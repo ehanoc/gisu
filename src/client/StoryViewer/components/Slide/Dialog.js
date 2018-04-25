@@ -4,9 +4,9 @@ import Typed from 'react-typed'
 
 import classes from './index.scss'
 
-const DialogOption = ({ children }) => (
-  <li className={classes.DialogOption}>
-    <Typed strings={([children])} showCursor={false}>
+const DialogOption = ({ children, choice, onOptionSelected }) => (
+  <li className={classes.DialogOption} onClick={() => onOptionSelected(choice)}>
+    <Typed strings={([choice.text])} showCursor={false}>
       <span />
     </Typed>
   </li>
@@ -27,17 +27,24 @@ const DialogText = ({ children }) => (
 )
 
 
-const Dialog = ({ children }) => (
+const Dialog = ({ children, choices=[], onOptionSelected }) => (
   <div className={classes.Dialog}>
     <DialogText>
       { children }
     </DialogText>
 
-    <DialogOptions>
-      <DialogOption>Do something good</DialogOption>
-      <DialogOption>Do something bad</DialogOption>
-      <DialogOption>Do nothing</DialogOption>
-    </DialogOptions>
+    {
+      choices.length > 0
+        ? <DialogOptions>
+            {
+              choices.map((choice, i) => (
+                <DialogOption choice={choice} onOptionSelected={onOptionSelected} key={i} />
+              ))
+            }
+          </DialogOptions>
+        : null
+    }
+
   </div>
 )
 

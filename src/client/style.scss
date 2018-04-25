@@ -2,6 +2,10 @@
  * General app styles
  */
 
+* {
+  box-sizing: border-box;
+}
+
 $colors : (
   'pink' : #E91E63,
   'cyan' : #00BCD4,
@@ -20,4 +24,10 @@ $colors : (
   .#{$name}.hover:hover {
     fill: darken($hex, 10%);
   }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }

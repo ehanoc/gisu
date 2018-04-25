@@ -4,8 +4,8 @@ import classnames from 'classnames'
 import classes from './index.scss'
 
 
-const Button = ({ children, icon }) => (
-  <div className={classes.Button}>
+const Button = ({ children, icon, onClick }) => (
+  <div className={classes.Button} onClick={onClick}>
     <span className={classnames("material-icons", classes.ButtonIcon)}>
       {icon}
     </span>

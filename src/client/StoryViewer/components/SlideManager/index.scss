@@ -1,0 +1,26 @@
+.SlideManager {
+
+}
+
+.SlideWrapper {
+
+  visibility: hidden;
+  opacity: 0;
+
+  transition: opacity 0.8s ease 0.8s;
+
+  &.previous {
+    visibility: visible;
+  }
+
+  &.current {
+    visibility: visible;
+    opacity: 1;
+
+    transition: opacity 0.8s ease 0s;
+  }
+
+  &.next {
+
+  }
+}
