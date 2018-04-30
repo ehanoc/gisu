@@ -26,6 +26,8 @@ class MediaAPI extends BaseAPI {
           resolve(mediaData)
         }
         reader.readAsDataURL(file)
+
+        this._post()
       } else {
         reject(new Error('No file provided'))
       }

@@ -17,7 +17,7 @@ import withRoot from './withRoot'
  *
  * This component will decide what view to render.
  */
-const App = ({ mode = 'view' }) => (
+const App = ({ mode = 'edit' }) => (
   mode == 'view'
     ? <StoryViewer/>
     : <StoryBuilder/>

@@ -47,7 +47,7 @@ export default class SelectedNodeInspector extends Component {
 
   setField(field, value) {
     console.log('Set field', field, value)
-    this.setState({ data: { ...this.state.data, [field]:value }, modified: true })
+    this.setState((state) => ({ data: { ...state.data, [field]:value }, modified: true }) )
   }
 
   onFieldChange(field, event) {

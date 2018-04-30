@@ -3,6 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import config from './config.json'
+import fileUpload from 'express-fileupload'
 
 
 export default (app) => {
@@ -24,4 +25,6 @@ export default (app) => {
 
   // Set static files directory
   app.use(express.static(`${__dirname}/static`))
+
+  app.use(fileUpload());
 }
