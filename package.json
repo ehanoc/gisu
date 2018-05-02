@@ -18,7 +18,7 @@
     "kill": "fuser -k 8080/tcp; fuser -k 8081/tcp; exit 0",
     "tool:webpack": "node ./node_modules/.bin/webpack",
     "tool:webpack:local": "node ./node_modules/.bin/webpack-dev-server --config ./webpack.config.local.js --progress --colors",
-    "tool:nodemon": "node ./node_modules/.bin/nodemon -V -w ./src/server --cwd ./src/server"
+    "tool:nodemon": "node ./node_modules/.bin/nodemon -V --watch ./ --cwd ./src/server"
   },
   "repository": {
     "type": "git",
@@ -80,7 +80,7 @@
   "devDependencies": {
     "browser-sync": "^2.23.7",
     "browser-sync-webpack-plugin": "^2.2.2",
-    "nodemon": "^1.14.11",
+    "nodemon": "^1.17.3",
     "webpack-bundle-tracker": "^0.3.0",
     "webpack-cli": "^2.0.11",
     "webpack-dev-middleware": "^3.0.1",

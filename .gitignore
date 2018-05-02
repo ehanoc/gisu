@@ -3,3 +3,4 @@
 node_modules/
 *.log
 webpack-stats.json
+yarn.lock
