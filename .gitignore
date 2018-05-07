@@ -4,3 +4,9 @@ node_modules/
 *.log
 webpack-stats.json
 yarn.lock
+
+src/server/static/uploads/*
+!src/server/static/uploads/.gitkeep
+
+src/server/data/stories/*
+!src/server/data/stories/.gitkeep

@@ -1,7 +1,7 @@
 // Fetch polyill
 import 'whatwg-fetch'
 
-import { query, Query } from './utils'
+import { query, default as Query } from '../../utils/query-params'
 import { extend, isString, last, camelCase, snakeCase, omit } from 'lodash'
 
 const ENDPOINT = `${window.location.protocol}//${window.location.host}/api/v0`

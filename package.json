@@ -18,7 +18,7 @@
     "kill": "fuser -k 8080/tcp; fuser -k 8081/tcp; exit 0",
     "tool:webpack": "node ./node_modules/.bin/webpack",
     "tool:webpack:local": "node ./node_modules/.bin/webpack-dev-server --config ./webpack.config.local.js --progress --colors",
-    "tool:nodemon": "node ./node_modules/.bin/nodemon -V --watch ./ --cwd ./src/server"
+    "tool:nodemon": "node ./node_modules/.bin/nodemon -V --watch ./ --cwd ./src/server -e js,pug"
   },
   "repository": {
     "type": "git",

@@ -15,6 +15,10 @@ class StoryAPI extends BaseAPI {
     return this._get(`/stories/${storyId}/`)
   }
 
+  update(story) {
+    return this._post(`/stories/${story.id}/`, { body: story })
+  }
+
 }
 
 export default new StoryAPI()

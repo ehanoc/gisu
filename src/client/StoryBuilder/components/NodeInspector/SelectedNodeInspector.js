@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
-import {identity as id, pick} from 'lodash'
+import {identity as id, pick, isUndefined} from 'lodash'
 import {capitalize} from 'lodash'
 import {
   Card,
@@ -30,15 +30,46 @@ export default class SelectedNodeInspector extends Component {
       upvoted  : false,
       data : {}
     }
+
+    this.updateData()
   }
 
-  _setNode(node) {
-    if (node.data != null && node.data.id != this.state.data.id) {
-      console.log('[NodeInspector] Set node to', node.data)
-      this.state.modified = false
-      this.state.upvoted = false
-      this.state.data = node.data || {}
-    }
+
+  componentWillReceiveProps(props) {
+    this.updateData(props)
+  }
+
+  updateData(props=this.props) {
+    const node = props.selectedNode
+    this.setState((state) => {
+      let newState
+
+      if (node.index != null) {
+        if (this.state.node != node) {
+          console.log('[NodeInspector] Set node to', node)
+          newState = {
+            ...state,
+            node,
+            modified: false,
+            upvoted: false,
+            data: node.getData()
+          }
+        } else {
+          newState = state
+        }
+      } else {
+        newState = {
+          ...state,
+          node: null,
+          modified: false,
+          upvoted: false,
+          data: {}
+        }
+      }
+
+      return newState
+    })
+
   }
 
   getField(field) {
@@ -46,7 +77,6 @@ export default class SelectedNodeInspector extends Component {
   }
 
   setField(field, value) {
-    console.log('Set field', field, value)
     this.setState((state) => ({ data: { ...state.data, [field]:value }, modified: true }) )
   }
 
@@ -55,7 +85,13 @@ export default class SelectedNodeInspector extends Component {
   }
 
   updateNode(handler) {
-    handler(this.state.data)
+    const { selectedNode } = this.props
+    if (selectedNode.isEdge) {
+      selectedNode.updateData(this.state.data)
+      handler(selectedNode.getSource().data)
+    } else {
+      handler(this.state.data)
+    }
     this.setState({ modified: false })
   }
 
@@ -67,16 +103,15 @@ export default class SelectedNodeInspector extends Component {
 
   render() {
     const { selectedNode, onUpdateNode, limitUpvote=false } = this.props
-    this._setNode(selectedNode)
 
-    const { modified, upvoted } = this.state
-    const data = selectedNode.data || {}
+    const { modified, upvoted, data } = this.state
+    const { isEdge, isNode } = selectedNode
 
     return (
       <Card>
         <CardContent>
           {
-            data.text
+            isNode
               ? <TextField
                   type="text"
                   style={{width: '100%'}}
@@ -90,40 +125,49 @@ export default class SelectedNodeInspector extends Component {
               : null
           }
         </CardContent>
-        <NodeInspectorImage
-          imageId={this.getField('background_id')}
-          onImageSelected={ (mediaId) => this.setField('background_id', mediaId) }
-        />
+        {
+          isNode ?
+            <NodeInspectorImage
+              imageId={this.getField('background_id')}
+              onImageSelected={ (mediaId) => this.setField('background_id', mediaId) }
+            />
+          : null
+        }
         <CardContent>
+          <TextField
+              type="text"
+              style={{width: '100%'}}
+              label={isEdge ? 'Option text' : "Node text"}
+              placeholder="Enter node's text"
+              rows="4"
+              multiline
+              fullWidth
+              value={this.getField('text')}
+              onChange={this.onFieldChange.bind(this, 'text')}
+            />
+
+
           {
-            data.text
-              ? <TextField
-                  type="text"
-                  style={{width: '100%'}}
-                  label="Node text "
-                  placeholder="Enter node's text"
-                  rows="4"
-                  multiline
-                  fullWidth
-                  value={this.getField('text')}
-                  onChange={this.onFieldChange.bind(this, 'text')}
+            isNode
+              ? <NodeInspectorAudio
+                  label="Music"
+                  mediaId={ this.getField('music_id') }
+                  onAudioSelected={ (mediaId) => this.setField('music_id', mediaId) }
+                  onAudioRemoved ={ () => this.setField('music_id', null) }
+                />
+             : null
+          }
+
+          {
+            isNode
+              ? <NodeInspectorAudio
+                  label="SFX"
+                  mediaId={ this.getField('sfx_id') }
+                  onAudioSelected={ (mediaId) => this.setField('sfx_id', mediaId) }
+                  onAudioRemoved ={ () => this.setField('sfx_id', null) }
                 />
               : null
           }
-
-          <NodeInspectorAudio
-            label="Music"
-            mediaId={ this.getField('music_id') }
-            onAudioSelected={ (mediaId) => this.setField('music_id', mediaId) }
-            onAudioRemoved ={ () => this.setField('music_id', null) }
-          />
-
-          <NodeInspectorAudio
-            label="SFX"
-            mediaId={ this.getField('sfx_id') }
-            onAudioSelected={ (mediaId) => this.setField('sfx_id', mediaId) }
-            onAudioRemoved ={ () => this.setField('sfx_id', null) }
-          />
         </CardContent>
 
 
@@ -138,7 +182,7 @@ export default class SelectedNodeInspector extends Component {
             Update
           </Button>
           {
-            selectedNode.isNode
+            isNode
               ? <Button
                   disabled={limitUpvote && upvoted}
                   onClick={() => this.upvote(onUpdateNode)}

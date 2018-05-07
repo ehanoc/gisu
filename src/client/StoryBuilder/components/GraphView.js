@@ -437,9 +437,6 @@ class StoryGraphView extends Component {
         case "Delete":
           this.handleDelete()
           break
-        case "Backspace":
-          this.handleDelete()
-          break
         default:
           break
       }
@@ -829,7 +826,6 @@ class StoryGraphView extends Component {
       //el.append('tspan').text(titleText).attr('x', 0).attr('dy', lineOffset)
       el.text(titleText)
       lines = wrap(el, 110, { maxLines: 4, lineHeight: 1.1 })
-      console.log('Obtained lines', lines)
       el.select(':first-child').attr('x', 0)
     }
 

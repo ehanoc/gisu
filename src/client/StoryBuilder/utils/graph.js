@@ -27,6 +27,14 @@ export class GraphNode {
     extend(this, attributes)
   }
 
+  getData() {
+    return this.data
+  }
+
+  updateData(newData) {
+    extend(this.data, newData)
+  }
+
   hasChildren() {
     return this.children.length > 0
   }
@@ -71,19 +79,97 @@ export class GraphNode {
 
 
 /**
+ * Visit each graph node avoiding cycles
+ */
+class GraphVisitor {
+
+  constructor(graph, root) {
+    this.root = root
+    this.graph = graph
+    this.visited = {}
+    this.nodesPerLevel = []
+  }
+
+  mark(node) {
+    this.visited[node.id] = true
+  }
+
+  isMarked(node) {
+    return has(this.visited, node.id)
+  }
+
+  visitNode(callback, node, parent=null, index=0, level=0) {
+    this.nodesPerLevel[level] = this.nodesPerLevel[level] || []
+
+    if (!this.isMarked(node)) {
+      this.mark(node)
+
+      this.nodesPerLevel[level].push(node)
+
+      const stop = callback(node, parent, index, level) === false
+
+      if (!stop) {
+        this.graph.childrenOf(node)
+          .forEach((child, i) =>
+            this.visitNode(callback, child, node, i, level + 1)
+          )
+      }
+
+    }
+  }
+
+  visit(callback, breadthFirst=false) {
+    this.visited = {}
+    this.nodesPerLevel = []
+    this.visitNode(callback, this.root)
+    return this
+  }
+
+}
+
+
+/**
  * Graph Edge
  */
 export class GraphEdge {
 
-  constructor(sourceId, targetId, data={}, type='transition') {
+  constructor(source, target, data={}, type='transition') {
     this.index = null
     this.isNode = false
     this.isEdge = true
-    this.source = sourceId
-    this.target = targetId
+
+    this.sourceNode = source
+    this.targetNode = target
+
     this.data = extend({is_accepted:false}, data)
     this.type = type
     this.deleted = false
+
+    // These must be IDs due to GraphView API
+    // should be changed in the future (or not)
+    this.source = this.sourceNode.id
+    this.target = this.targetNode.id
+  }
+
+  getSource() {
+    return this.sourceNode
+  }
+
+  getData() {
+    const source = this.sourceNode
+    const target = this.targetNode
+
+    let data
+    if (source.data.choices) {
+      const matchingChoices = source.data.choices.filter((c) => c.next_node_id == target.id)
+      data = matchingChoices[0]
+    }
+    return data ? data : {}
+  }
+
+  updateData(newData) {
+    const choice = this.getData()
+    extend(choice, newData)
   }
 
   markAsDeleted(value=true) {
@@ -177,8 +263,13 @@ export default class Graph {
   addEdge(source, target, data={}) {
     const sourceId = this._id(source)
     const targetId = this._id(target)
+    source = this._node(source)
+    target = this._node(target)
 
-    const edge = new GraphEdge(sourceId, targetId, data)
+    source.addChild(targetId)
+    target.setParent(sourceId)
+
+    const edge = new GraphEdge(source, target, data)
     this.edges.push(edge)
 
     edge.index = this.edges.length - 1
@@ -189,7 +280,6 @@ export default class Graph {
     this._edgeMatrixInv[targetId] = this._edgeMatrixInv[choice.next_node_id] || {}
     this._edgeMatrixInv[targetId][sourceId] = edge
 
-    this.getNode(sourceId).addChild(targetId)
 
     return this
   }
@@ -221,7 +311,6 @@ export default class Graph {
     node.index = this.nodes.length - 1
 
     if (parent) {
-      node.setParent(this._id(parent))
       this.addEdge(parent, node, { is_accepted: parent.isAccepted() && node.isAccepted() })
     }
 
@@ -274,63 +363,32 @@ export default class Graph {
 
   visit(callback, root) {
     root = root || this.root()
-    const visited = {}
-
-    const _markVisited = (node) =>
-      visited[this._id(node)] = true
-
-    const _visited = (node) =>
-      has(visited, this._id(node))
-
-    function _visit(graph, f, node, parent=null, index=0) {
-
-      if (!_visited(node)) {
-        _markVisited()
-
-        const stop = f(node, parent, index) === false
-
-        if (!stop) {
-          graph.childrenOf(node).forEach((child, i) =>
-            _visit(graph, f, child, node, i) )
-        }
-
-      }
-
-    }
-
-    return _visit(this, callback, root)
+    const visitor = new GraphVisitor(this, root)
+    return visitor.visit(callback)
   }
 
   init() {
-    this.visit((node, parent, index) => {
+    const visitor = this.visit((node, parent, index, level) => {
       if (parent) {
         node.data.is_accepted = node.data.is_accepted && parent.data.is_accepted
 
         this.getEdge(parent, node).data.is_accepted = node.data.is_accepted
-
-        node.x = parent.children.length <= 1 || index == 0
-          ? parent.x
-          : parent.x + 800 * (index - parent.children.length/2)
-        node.y = parent.y + 300
-
-        console.log(parent)
-        console.log(index, parent.children.length, node.x, node.y)
       }
     })
 
-    this._updateRelationships()
+
+    visitor.nodesPerLevel.forEach((level, levelIndex) => {
+      const levelSize = level.length
+      const levelWidth = levelSize * 300
+
+      level.forEach((node, columnIndex) => {
+        node.x = columnIndex * 300 - levelWidth/2
+        node.y = levelIndex * 300
+      })
+
+    })
+
     return this
-  }
-
-  _updateRelationships() {
-    this.nodes.forEach((node) => {
-      const parent = this.getParent(node)
-      if (parent != null) {
-        node.setParent(parent.id)
-      } else {
-        console.log(node, 'has no parent', parent)
-      }
-    })
   }
 
   _updateEdgeIndexes() {

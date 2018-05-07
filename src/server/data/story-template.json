@@ -1,0 +1,26 @@
+{
+  "id": 0,
+  "title": "My Story",
+  "description": "Describe your story here...",
+  "start_node_id": 0,
+
+  "nodes": [
+
+    {
+      "id": 0,
+      "story_id": 0,
+      "votes": 0,
+      "is_accepted": true,
+
+      "next_node_id": null,
+
+      "background_id": null,
+      "music_id": null,
+
+      "title": "My first node",
+      "text": "This is the first node of your story..."
+
+    }
+
+  ]
+}

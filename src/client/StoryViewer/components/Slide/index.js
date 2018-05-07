@@ -20,7 +20,7 @@ const Slide = ({ storyNode, styles, onOptionSelected }) => (
     }
 
     <Dialog choices={storyNode.choices} onOptionSelected={onOptionSelected}>
-      { storyNode.title }
+      { storyNode.text }
     </Dialog>
 
   </div>

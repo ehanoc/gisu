@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import {getStory} from '../../data'
+import { getStory, saveStory } from '../../data'
 
 
 /**
@@ -19,6 +19,17 @@ router.get('/', (req, res) => {
 router.get('/:storyId/', (req, res) => {
   console.log('retrieve story', req.params.storyId)
   res.json(getStory(req.params.storyId))
+})
+
+// Save/Update a story
+router.post('/:storyId/', (req, res) => {
+  const { storyId } = req.params
+  const story = req.body
+  console.log('save story', storyId)
+
+  saveStory(storyId, story)
+
+  res.json({ message: 'success' })
 })
 
 

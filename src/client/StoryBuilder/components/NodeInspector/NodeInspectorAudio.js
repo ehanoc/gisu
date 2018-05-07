@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
 import classNames from 'classnames'
-import {isInteger, last} from 'lodash'
+import { isInteger, last, identity } from 'lodash'
 import {Media} from '../../../api'
 import SelectButtonIcon from 'material-ui-icons/Add'
 import {
@@ -21,6 +21,11 @@ export default class NodeInspectorAudio extends Component {
   constructor(props) {
     super(props)
     this.fileInput = null
+    this.fileForm = null
+
+    this.state = {
+      audioSource: null
+    }
   }
 
   uploadAudio() {
@@ -30,9 +35,10 @@ export default class NodeInspectorAudio extends Component {
   audioSelected(file) {
     if (file) {
       Media.upload(file)
-        .then((data) =>
+        .then((data) => {
+          this.setAudioSource(data)
           this.props.onAudioSelected(data.id)
-        )
+        })
     }
   }
 
@@ -43,18 +49,46 @@ export default class NodeInspectorAudio extends Component {
       if (match) {
         extension = match[1]
       } else {
-        extension = last(audioSource.split('.'))
+        extension = last(url.split('.'))
       }
     }
     return extension
+  }
+
+  componentDidMount() {
+    this.updateAudioSource()
+  }
+
+  setAudioSource(data) {
+    const url = data ? data.url : null
+    this.setState((state) => ({
+      ...state,
+      audioSource: url
+    }))
+  }
+
+  updateAudioSource() {
+    const { mediaId } = this.props
+    if (isInteger(mediaId)) {
+      Media.get(mediaId)
+        .then((data) => this.setAudioSource(data))
+    }
+  }
+
+  removeAudio() {
+    const { onAudioRemoved=identity } = this.props
+    this.setAudioSource(null)
+    onAudioRemoved()
   }
 
   render() {
 
     const { mediaId, label } = this.props
 
-    const audioSource = isInteger(mediaId) ? Media.get(mediaId) : null
-    const audioExtension = this.extractExtension(audioSource)
+    const { audioSource } = this.state
+    const audioExtension = audioSource != null ? this.extractExtension(audioSource) : null
+
+    console.log(mediaId, audioSource)
 
     return (
       <div className={classes.NodeInspectorAudio} >
@@ -74,13 +108,16 @@ export default class NodeInspectorAudio extends Component {
         </div>
 
         <div className={classes.NodeInspectorAudioActions}>
-          <input ref={(ref) => this.fileInput = ref}
-                 type="file"
-                 style={ {display: 'none'} }
-                 accept=".mp3, .ogg, .webm, .wav"
-                 onChange={() => this.audioSelected(this.fileInput.files[0])}
-          />
-          <Button onClick={ audioSource ? this.props.onAudioRemoved : this.uploadAudio.bind(this)}>
+          <form ref={(ref) => this.fileForm = ref}>
+            <input ref={(ref) => this.fileInput = ref}
+                   type="file"
+                   style={ {display: 'none'} }
+                   name="file"
+                   accept=".mp3, .ogg, .webm, .wav"
+                   onChange={() => this.audioSelected(this.fileForm)}
+            />
+          </form>
+          <Button onClick={ audioSource ? this.removeAudio.bind(this) : this.uploadAudio.bind(this)}>
             { audioSource ? 'Remove' : 'Upload' }
           </Button>
         </div>

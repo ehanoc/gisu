@@ -1,3 +1,4 @@
+import {Story} from '../api'
 import React, {Component} from 'react'
 
 import {
@@ -10,50 +11,6 @@ import classes from './index.scss'
 
 const log = console.log.bind(console, '[StoryViewer]')
 
-const mockupNodes = [
-  {
-    "id": 0,
-    "title": "First Node",
-    "text": "The story begins with a single node",
-    "background": "https://images.pexels.com/photos/248797/pexels-photo-248797.jpeg"
-  },
-  {
-    "id": 1,
-    "title": "Second Node",
-    "text": "That leads to a second node",
-    "background": "https://media-cdn.tripadvisor.com/media/photo-s/0f/05/55/c8/beach-area.jpg"
-  },
-  {
-    "id": 2,
-    "title": "Third Node",
-    "text": "And a third. What about choosing something?",
-    "background": "https://media-cdn.tripadvisor.com/media/photo-s/0f/05/55/c8/beach-area.jpg",
-
-    "choices": [
-      {
-        "text": "Do something right now",
-        "next_node_id": 3
-      },
-
-      {
-        "text": "Do nothing",
-        "next_node_id": 3
-      },
-
-      {
-        "text": "Sleep",
-        "next_node_id": 3
-      }
-    ]
-  },
-  {
-    "id": 3,
-    "title": "Last Node",
-    "text": "Finally, the last node",
-    "background": null
-  },
-]
-
 
 class StoryViewer extends Component {
 
@@ -61,8 +18,35 @@ class StoryViewer extends Component {
     super(props)
     this.state = {
       currentSlide : 0,
-      volumeEnabled: true
+      volumeEnabled: true,
+      story : {
+        nodes : []
+      }
     }
+
+    this.updateStory()
+  }
+
+  componentWillReceiveProps(props) {
+    this.updateStory(props)
+  }
+
+  getMediaUrl(id) {
+    return `/uploads/${id}`
+  }
+
+  updateStory(props=this.props) {
+    Story.get(props.storyId)
+      .then((story) => {
+
+        story.nodes.forEach((node) => {
+          node.background = this.getMediaUrl(node.background_id)
+          node.music = this.getMediaUrl(node.music)
+          node.sfx = this.getMediaUrl(node.sfx)
+        })
+
+        this.setState({ story })
+      })
   }
 
   nextSlide() {
@@ -85,12 +69,16 @@ class StoryViewer extends Component {
   }
 
   render() {
+    const { nodes } = this.state.story
+
+    console.log('Rendering nodes', nodes)
+
     return (
       <div className={classes.StoryViewer}>
 
         <SlideManager currentSlide={this.state.currentSlide}>
           {
-            mockupNodes.map((node, i) => (
+            nodes.map((node, i) => (
               <Slide
                 key={i}
                 storyNode={node}

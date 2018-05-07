@@ -12,22 +12,15 @@ const storedMedia = []
 
 class MediaAPI extends BaseAPI {
 
-  upload(file) {
+  upload(fileForm) {
     return new Promise((resolve, reject) => {
-      if (file) {
-        const reader = new FileReader()
-        reader.onload = (event) => {
-          const mediaData = {
-            id   : storedMedia.length,
-            url  : event.target.result,
-            file : file
-          }
-          storedMedia.push(mediaData)
-          resolve(mediaData)
-        }
-        reader.readAsDataURL(file)
+      if (fileForm) {
+        const data = new FormData(fileForm)
+        const file = data.get('file')
 
-        this._post()
+        this._post(`/media/`, { body: data })
+          .then((data) => data.media)
+          .then(resolve)
       } else {
         reject(new Error('No file provided'))
       }
@@ -35,7 +28,7 @@ class MediaAPI extends BaseAPI {
   }
 
   get(id) {
-    return storedMedia[id] ? storedMedia[id].url : ''
+    return this._get(`/media/${id}/`).then((data) => data.media)
   }
 
 }

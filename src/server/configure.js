@@ -10,6 +10,8 @@ export default (app) => {
   // Setup logger
   app.use(morgan('dev'))
 
+  app.use(fileUpload())
+
   // 3rd party middleware
   app.use(cors({
   	exposedHeaders: config.corsHeaders
@@ -26,5 +28,4 @@ export default (app) => {
   // Set static files directory
   app.use(express.static(`${__dirname}/static`))
 
-  app.use(fileUpload());
 }

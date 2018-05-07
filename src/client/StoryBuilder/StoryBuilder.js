@@ -43,13 +43,83 @@ export default class StoryBuilder extends Component {
       selected: {}
     }
 
-    Story.get(0)
+    Story.get(props.storyId)
       .then((story) => {
         const graph = (new GraphBuilder()).build(story)
         console.log('Received', graph)
-        this.setState({graph, selected : graph.nodes[0] })
+        this.setState((state) => ({
+          ...state,
+          story,
+          graph,
+          selected : graph.nodes[0]
+        }))
       })
 
+  }
+
+  /**
+   * Save story on the server
+   */
+  saveStory() {
+    Story.update(this.state.story)
+  }
+
+  /**
+   * Add a new story node
+   *
+   * @param id the id for the story node
+   * @param parent the parent story node
+   */
+  addStoryNode(id, parent=false) {
+    const { story } = this.state
+    const node = {
+      "title": `Node ${id}`,
+      "id" : id,
+      "story_id": story.id,
+      "votes": 0,
+      "is_accepted": false,
+      "background_id": null,
+      "music_id": null,
+      "text": ""
+    }
+    story.nodes.push(node)
+
+    if (parent) {
+
+      if (parent.choices == null) {
+
+        // First child
+        if (parent.next_node_id == null) {
+          parent.next_node_id = node.id
+
+        // Second child
+        } else {
+          parent.choices = [
+            {
+              text : "Option 1",
+              next_node_id : parent.next_node_id
+            },
+            {
+              text : "Option 2",
+              next_node_id : node.id
+            }
+          ]
+
+          parent.next_node_id
+
+        }
+
+      // Other cases
+      } else {
+        parent.choices.push({
+          text: `Option ${parent.choices.length + 1}`,
+          next_node_id: node.id
+        })
+
+      }
+    }
+
+    return node
   }
 
   /**
@@ -103,11 +173,12 @@ export default class StoryBuilder extends Component {
    * Updates data related to a story node.
    */
   updateStoryNode(data) {
-    Node.update(data.id, data)
+    //Node.update(data.id, data)
     var node = this.graph().getNode(data.id)
     node.updateData(data)
     this.calculateAcception(node)
     this.forceUpdate()
+    this.saveStory()
   }
 
   /**
@@ -167,6 +238,7 @@ export default class StoryBuilder extends Component {
   onVoteUpNode(node) {
     node.data.votes += 1
     this.calculateAcception(node)
+    this.saveStory()
   }
 
   /**
@@ -177,18 +249,13 @@ export default class StoryBuilder extends Component {
 
     // Create new node
     const id = randomId()
+
+    const storyNode = this.addStoryNode(id, parent.data)
+    const parentStoryNode = parent.data
+
     graph.addNode({
       id,
-      data: {
-        "title": `Node ${id}`,
-        "id" : id,
-        "story_id": parent.data.story_id,
-        "votes": 0,
-        "is_accepted": false,
-        "background_id": 0,
-        "music_id": null,
-        "text": ""
-      }
+      data: storyNode
     }, parent)
 
     const node = graph.getNode(id)
@@ -211,12 +278,15 @@ export default class StoryBuilder extends Component {
     // Update graph
     this.setState({graph})
     console.log('Added new node')
+
+    this.saveStory()
   }
 
   /**
    * Delete node from the graph
    */
   onDeleteNode(viewNode) {
+    console.log('Delete node')
     this.setState({
       graph: this.graph(),
       selected: {}
@@ -248,6 +318,7 @@ export default class StoryBuilder extends Component {
    * Handles edge deletion
    */
   onDeleteEdge(edge) {
+    console.log('Delete edge')
     this.setState({
       graph: this.graph().removeEdge(edge),
       selected: {}
@@ -288,6 +359,7 @@ export default class StoryBuilder extends Component {
                     graphControls={false}
                     nodeKey="id"
                     emptyType="text"
+                    dragEnabled={true}
                     nodes={nodes}
                     edges={edges}
                     selected={selected}
