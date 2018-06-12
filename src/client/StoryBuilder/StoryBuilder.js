@@ -26,8 +26,6 @@ const ACCEPTION_THRESHOLD = 1
  * Application to build stories.
  *
  */
-
-
 export default class StoryBuilder extends Component {
 
   constructor(props) {

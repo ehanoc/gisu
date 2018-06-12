@@ -16,6 +16,7 @@ import withRoot from './withRoot'
 const storyId = queryParams.get('story_id', 0)
 const mode = queryParams.get('mode', 'view')
 
+
 /**
  * Application
  *
@@ -26,5 +27,6 @@ const App = () => (
     ? <StoryViewer storyId={storyId} />
     : <StoryBuilder storyId={storyId} />
 )
+
 
 export default withRoot(App)

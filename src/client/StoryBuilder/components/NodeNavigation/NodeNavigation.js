@@ -11,7 +11,6 @@ import classes from './NodeNavigation.scss'
 /**
  * Navigation control
  */
-
 export default ({disabled, direction=1, onClick=(()=>{})}) => (
 
   <div className={classes.NodeNavigation}>

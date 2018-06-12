@@ -6,14 +6,10 @@ import CssBaseline from 'material-ui/CssBaseline'
 
 
 /**
- * withRoot
- *
- * High-order component to apply Material UI theme
+ * Optional theme with custom primary and secondary color.
+ * You can read more about this on:
+ *   https://material-ui-next.com/customization/themes/
  */
-
-
-// A theme with custom primary and secondary color.
-// It's optional.
 const theme = createMuiTheme({
   palette: {
     primary: {
@@ -29,6 +25,13 @@ const theme = createMuiTheme({
   },
 })
 
+
+/**
+ * withRoot
+ *
+ * High order component to wrap the application with all the global
+ * scope helpers.
+ */
 function withRoot(Component) {
   function WithRoot(props) {
     // MuiThemeProvider makes the theme available down the React tree
@@ -44,5 +47,6 @@ function withRoot(Component) {
 
   return WithRoot
 }
+
 
 export default withRoot

@@ -21,8 +21,12 @@ const render = Component =>
     document.getElementById('root')
   )
 
+
+// Render application
 render(App)
 
+
+// Enable Webpack Hot Reloading
 if (module.hot) {
   module.hot.accept()
 }

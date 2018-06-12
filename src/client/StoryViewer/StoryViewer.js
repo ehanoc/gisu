@@ -9,10 +9,15 @@ import {
 
 import classes from './index.scss'
 
+
 const log = console.log.bind(console, '[StoryViewer]')
 
 
+/**
+ * Story visualization component
+ */
 class StoryViewer extends Component {
+
 
   constructor(props) {
     super(props)
@@ -27,14 +32,23 @@ class StoryViewer extends Component {
     this.updateStory()
   }
 
+  /**
+   * On props change, update story state in the client
+   */
   componentWillReceiveProps(props) {
     this.updateStory(props)
   }
 
+  /**
+   * Build the URL for media based on ID
+   */
   getMediaUrl(id) {
     return `/uploads/${id}`
   }
 
+  /**
+   * Update story state
+   */
   updateStory(props=this.props) {
     Story.get(props.storyId)
       .then((story) => {
@@ -49,6 +63,9 @@ class StoryViewer extends Component {
       })
   }
 
+  /**
+   * Change to next slide
+   */
   nextSlide() {
     log('Next slide')
     this.setState((state) => ({
@@ -56,6 +73,9 @@ class StoryViewer extends Component {
     }))
   }
 
+  /**
+   * Enable or disable volume
+   */
   toggleVolume() {
     log('Toggle volume')
     this.setState((state) => ({
@@ -63,11 +83,17 @@ class StoryViewer extends Component {
     }))
   }
 
+  /**
+   * Handle story option selection
+   */
   onOptionSelected(choice) {
     console.log('Chosen', choice)
     this.nextSlide()
   }
 
+  /**
+   * Render view
+   */
   render() {
     const { nodes } = this.state.story
 

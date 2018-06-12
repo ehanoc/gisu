@@ -1,3 +1,7 @@
+/**
+ * Query Params is a helper module to handle URL query string parameters.
+ */
+
 import {map, keys, reduce, toLower, clone, extend, isUndefined} from 'lodash'
 
 

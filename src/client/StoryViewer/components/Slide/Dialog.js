@@ -4,6 +4,10 @@ import Typed from 'react-typed'
 
 import classes from './index.scss'
 
+
+/**
+ * A dialog option.
+ */
 const DialogOption = ({ children, choice, onOptionSelected }) => (
   <li className={classes.DialogOption} onClick={() => onOptionSelected(choice)}>
     <Typed strings={([choice.text])} showCursor={false}>
@@ -13,6 +17,9 @@ const DialogOption = ({ children, choice, onOptionSelected }) => (
 )
 
 
+/**
+ * Options for the dialog
+ */
 const DialogOptions = ({ children }) => (
   <ul className={classes.DialogOptions}>
     { children }
@@ -20,6 +27,9 @@ const DialogOptions = ({ children }) => (
 )
 
 
+/**
+ * Dialog typed text
+ */
 const DialogText = ({ children }) => (
   <Typed strings={([children])} showCursor={false}>
     <div className={classes.DialogText} />
@@ -27,6 +37,9 @@ const DialogText = ({ children }) => (
 )
 
 
+/**
+ * Slide text dialog which may contain options
+ */
 const Dialog = ({ children, choices=[], onOptionSelected }) => (
   <div className={classes.Dialog}>
     <DialogText>
@@ -47,5 +60,6 @@ const Dialog = ({ children, choices=[], onOptionSelected }) => (
 
   </div>
 )
+
 
 export default Dialog

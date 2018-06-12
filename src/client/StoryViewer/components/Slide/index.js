@@ -6,6 +6,10 @@ import Title      from './Title'
 
 import classes from './index.scss'
 
+
+/**
+ * Implementation of the story slide with background, text, title and options
+ */
 const Slide = ({ storyNode, styles, onOptionSelected }) => (
   <div className={classes.Slide} {...styles}>
 
@@ -25,5 +29,6 @@ const Slide = ({ storyNode, styles, onOptionSelected }) => (
 
   </div>
 )
+
 
 export default Slide

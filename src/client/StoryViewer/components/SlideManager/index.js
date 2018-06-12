@@ -3,6 +3,10 @@ import classNames from 'classnames'
 
 import classes from './index.scss'
 
+
+/**
+ * Wrap slide content to provide transitions and visibility behaviors.
+ */
 const SlideWrapper = ({ children, isCurrent, isPrevious, isNext }) => {
 
   const classnames = classNames(
@@ -21,6 +25,10 @@ const SlideWrapper = ({ children, isCurrent, isPrevious, isNext }) => {
   )
 }
 
+
+/**
+ * Manage story slides visualiation. Selects the current slide and shows it.
+ */
 const SlideManager = ({ children, currentSlide=0 }) => (
   <div className={classes.SlideManager}>
     {
