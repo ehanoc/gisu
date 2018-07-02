@@ -2,6 +2,8 @@ pragma solidity  ^0.4.19;
 
 contract StoriesContract {
 
+  event StoryCreated(string title, string body, uint id);
+
   struct StoryNode {
     uint id;
     string title;
@@ -14,7 +16,7 @@ contract StoriesContract {
   mapping(uint => StoryNode) stories;
 
   // total nr of stories
-  uint nr_stories;
+  uint nr_nodes;
 
   /**
   *
@@ -24,10 +26,20 @@ contract StoriesContract {
   function createStory(string title, string body) public payable {
     require(msg.value > 0);
 
-    StoryNode memory newNode = StoryNode(nr_stories, title, body, msg.sender);
+    StoryNode memory newNode = StoryNode(nr_nodes, title, body, msg.sender);
 
     stories[newNode.id] = newNode;
 
-    nr_stories++;
+    nr_nodes++;
+
+    emit StoryCreated(title, body, nr_nodes);
+  }
+
+  /**
+  *
+  *
+  */
+  function getNumberNodes() public view returns(uint) {
+      return nr_nodes;
   }
 }
